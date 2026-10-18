@@ -1,4 +1,5 @@
 import ProductCard from "../components/ProductCard";
+import Container from "../components/ui/Container";
 import { searchProducts } from "../lib/products";
 import type { GetServerSideProps } from "next";
 import type { ProductWithRating } from "@/types";
@@ -10,7 +11,7 @@ interface SearchProps {
 
 export default function Search({ query, productsAndAverage }: SearchProps) {
   return (
-    <div className="m-5">
+    <Container className="py-5">
       <h2 className="text-xl font-bold">Search Result</h2>
       <p className="text-sm">
         {productsAndAverage.length} product
@@ -25,7 +26,7 @@ export default function Search({ query, productsAndAverage }: SearchProps) {
           />
         );
       })}
-    </div>
+    </Container>
   );
 }
 

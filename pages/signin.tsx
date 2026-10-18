@@ -11,6 +11,7 @@ import {
 import { errorMessage, useLogin, useMe, useSignup } from "../hooks/useAuth";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
+import Container from "../components/ui/Container";
 import { FieldError, Input, Label } from "../components/ui/Field";
 import { cn } from "../utils/cn";
 
@@ -56,9 +57,9 @@ export default function SignIn() {
   const login = (data?: LoginInput) => loginMutation.mutate(data);
 
   return (
-    <div className="mx-3 my-10 flex flex-col xs:mx-auto xs:max-w-100">
+    <Container size="sm" className="flex flex-col py-10">
       <h2 className="self-start text-3xl font-semibold">Welcome</h2>
-      <Card className="mt-3 max-w-100 overflow-hidden shadow-md">
+      <Card className="mt-3 overflow-hidden shadow-md">
         <div className={cn("p-4", !showSignup && "bg-muted")}>
           <div className="flex items-center gap-3">
             <input
@@ -177,6 +178,6 @@ export default function SignIn() {
           Login with test account
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }

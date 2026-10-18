@@ -23,7 +23,7 @@ export default function Toaster() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed top-30 right-4 z-20 flex flex-col items-end gap-2 md:top-20"
+      className="pointer-events-none fixed top-30 right-4 z-30 flex flex-col items-end gap-2 md:top-20"
     >
       {toasts.map(({ id, message, variant }) => (
         <div

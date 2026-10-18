@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { catalogs } from "../utils/catalogs";
 import Card from "../components/ui/Card";
+import Container from "../components/ui/Container";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
@@ -72,7 +73,7 @@ export default function Home() {
           ))}
         </Slide>
       </div>
-      <div className="flex flex-wrap justify-center pt-2">
+      <Container className="flex flex-wrap justify-center py-4">
         {catalogs.map((catalog, index) => {
           return (
             <Card
@@ -94,7 +95,7 @@ export default function Home() {
             </Card>
           );
         })}
-      </div>
+      </Container>
     </>
   );
 }

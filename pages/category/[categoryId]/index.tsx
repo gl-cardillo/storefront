@@ -1,4 +1,5 @@
 import ProductCard from "../../../components/ProductCard";
+import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { catalogs } from "../../../utils/catalogs";
@@ -22,8 +23,8 @@ export default function Category({ productsAndAverage }: CategoryProps) {
   );
 
   return (
-    <div className="flex min-h-screen gap-3">
-      <div className="fixed hidden h-[calc(100vh-4rem)] w-52 border-r border-border bg-surface p-3 md:block">
+    <Container className="flex gap-6 py-4">
+      <div className="sticky top-20 hidden w-52 shrink-0 self-start rounded-lg border border-border bg-surface p-3 md:block">
         <h2 className="mb-3 text-2xl font-bold">Categories</h2>
         {catalogs.map((category, index) => {
           return (
@@ -55,7 +56,7 @@ export default function Category({ productsAndAverage }: CategoryProps) {
           );
         })}
       </div>
-      <div className="w-full md:ml-52">
+      <div className="min-w-0 flex-1">
         <h3 className="mb-2 border-b border-border pl-1 text-2xl font-bold md:hidden">
           {currentCategory?.name}
         </h3>
@@ -89,7 +90,7 @@ export default function Category({ productsAndAverage }: CategoryProps) {
           })}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
 

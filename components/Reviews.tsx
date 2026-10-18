@@ -86,7 +86,7 @@ export default function Reviews({
   );
 
   return (
-    <Card className="mx-auto mt-3 flex w-full max-w-3xl flex-col p-5 md:px-10">
+    <Card className="mt-3 flex flex-col p-5 md:px-10">
       <div className="flex flex-col items-center">
         <h3 className="text-2xl font-bold text-foreground">Customer reviews</h3>
         <p className="mb-3 text-muted-foreground">

@@ -6,6 +6,7 @@ import { getReviewSummary } from "../../lib/reviews";
 import ImageSelector from "../../components/ImageSelector";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
+import Container from "../../components/ui/Container";
 import Price from "../../components/ui/Price";
 import Stars from "../../components/ui/Stars";
 import { cn } from "../../utils/cn";
@@ -58,7 +59,7 @@ export default function Product({
   };
 
   return (
-    <div className="mx-2 mb-4 flex flex-col">
+    <Container size="md" className="flex flex-col pb-4">
       <Card className="my-3 flex flex-col items-center gap-5 p-5 md:hidden">
         <h3 className="text-xl font-bold">{product.name}</h3>
         <div className="flex items-center">
@@ -91,7 +92,7 @@ export default function Product({
           )}
         </div>
       </Card>
-      <Card className="my-3 hidden flex-col items-center p-3 md:mx-auto md:flex md:w-full md:max-w-3xl">
+      <Card className="my-3 hidden flex-col items-center p-3 md:flex">
         <div className="flex h-80 w-full items-center justify-between gap-5">
           <div className="w-1/3 p-2">
             <ImageSelector product={product} />
@@ -139,7 +140,7 @@ export default function Product({
           </div>
         )}
       </Card>
-      <Card className="flex flex-col items-center gap-3 py-5 md:mx-auto md:w-full md:max-w-3xl">
+      <Card className="flex flex-col items-center gap-3 py-5">
         <p className="font-semibold text-success">In Stock</p>
         <div className="flex w-17.5 gap-3 rounded-2xl border border-border px-2">
           <button
@@ -173,7 +174,7 @@ export default function Product({
         setAskLogin={setAskLogin}
       />
       {askLogin && (
-        <div className="fixed top-0 left-0 z-10 h-full w-full bg-black/50">
+        <div className="fixed top-0 left-0 z-40 h-full w-full bg-black/50">
           <Card className="absolute top-1/2 left-1/2 w-75 -translate-x-1/2 -translate-y-1/2 p-4 text-lg shadow-lg">
             <p className="text-center font-semibold text-muted-foreground">
               You need to login first
@@ -193,7 +194,7 @@ export default function Product({
           </Card>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
 
