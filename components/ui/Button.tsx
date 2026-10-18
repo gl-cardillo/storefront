@@ -6,6 +6,7 @@ const variants = {
     "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover",
   secondary: "border border-border bg-surface text-foreground hover:bg-muted",
   danger: "border border-danger text-danger hover:bg-danger/10",
+  destructive: "bg-danger text-danger-foreground shadow-sm hover:bg-danger/90",
 };
 
 const sizes = {

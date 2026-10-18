@@ -93,6 +93,18 @@ test("sign up, shop, edit profile, log in and delete", async ({
     await expect(page).toHaveURL("/");
   });
 
+  await test.step("cancel keeps the account", async () => {
+    await visit(page, "/profile");
+    await page.getByRole("button", { name: "Delete account" }).click();
+    const dialog = page.getByRole("dialog", { name: "Delete your account?" });
+    await dialog.getByRole("button", { name: "Cancel" }).click();
+    await expect(dialog).toBeHidden();
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "Delete account" }),
+    ).toBeVisible();
+  });
+
   await test.step("delete the account", async () => {
     await deleteAccount(page);
     const login = await request.post("/api/auth/login", {

@@ -7,15 +7,16 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
-import { swalStyle, handleSuccess } from "../utils/utils";
+import { toast } from "../utils/toast";
 import { profileSchema, type ProfileInput } from "../utils/schemas";
 import { TEST_ACCOUNT_EMAIL } from "../utils/constants";
 import { cn } from "../utils/cn";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import { FieldError, Input, Label } from "../components/ui/Field";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import {
+  errorMessage,
   useDeleteAccount,
   useLogout,
   useMe,
@@ -44,6 +45,7 @@ const PROFILE_FIELDS: {
 export default function Profile() {
   const [showDetails, setShowDetails] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const { currencySymbol, setCurrencySymbol, setCurrencyRate } =
     useContext(CurrencyContext);
@@ -91,23 +93,16 @@ export default function Profile() {
   };
 
   const confirmDelete = () => {
-    Swal.fire({
-      title: "Are you sure you want to delete this account?",
-      position: "top",
-      showCancelButton: true,
-      confirmButtonText: "Close",
-      cancelButtonText: "Delete",
-      ...swalStyle,
-    }).then((result) => {
-      Swal.close();
-      if (result.isDismissed) {
-        deleteAccount.mutate(undefined, {
-          onSuccess: async () => {
-            await logOut();
-            handleSuccess("Account deleted successfully");
-          },
-        });
-      }
+    deleteAccount.mutate(undefined, {
+      onSuccess: async () => {
+        setConfirmingDelete(false);
+        await logOut();
+        toast("Account deleted");
+      },
+      onError: (error) => {
+        setConfirmingDelete(false);
+        toast(errorMessage(error), "error");
+      },
     });
   };
 
@@ -223,11 +218,20 @@ export default function Profile() {
           <p className="text-lg font-semibold">Log out</p>
         </button>
         {user && user.email !== TEST_ACCOUNT_EMAIL && (
-          <Button variant="danger" onClick={confirmDelete}>
+          <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
             Delete account
           </Button>
         )}
       </div>
+      <ConfirmDialog
+        open={confirmingDelete}
+        title="Delete your account?"
+        description="Your reviews are deleted too. This can't be undone."
+        confirmLabel="Delete"
+        pending={deleteAccount.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmingDelete(false)}
+      />
     </Card>
   );
 }
