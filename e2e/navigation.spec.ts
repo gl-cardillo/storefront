@@ -7,6 +7,25 @@ test("logged out pages redirect to sign in", async ({ page }) => {
   }
 });
 
+test("the hero carousel moves between slides", async ({ page }) => {
+  await visit(page, "/");
+  const carousel = page.getByRole("region", { name: "Featured" });
+  const dot = (n: number) =>
+    carousel.getByRole("button", { name: `Go to slide ${n}` });
+  await expect(dot(1)).toHaveAttribute("aria-current", "true");
+
+  await carousel.getByRole("button", { name: "Next slide" }).click();
+  await expect(dot(2)).toHaveAttribute("aria-current", "true");
+  await expect(
+    carousel.getByRole("link", { name: "See phones" }),
+  ).toBeVisible();
+
+  await carousel.getByRole("button", { name: "Previous slide" }).click();
+  await expect(dot(1)).toHaveAttribute("aria-current", "true");
+  await carousel.getByRole("link", { name: "Shop shoes" }).click();
+  await expect(page).toHaveURL("/category/clothes/Shoes");
+});
+
 test("search suggests products and opens the results", async ({ page }) => {
   await visit(page, "/");
   const search = page.getByRole("combobox", { name: "Search products" });
