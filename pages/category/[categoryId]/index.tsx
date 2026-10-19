@@ -1,4 +1,7 @@
-import ProductCard from "../../../components/ProductCard";
+import { BsBoxSeam } from "react-icons/bs";
+import ProductGrid from "../../../components/ProductGrid";
+import EmptyState from "../../../components/ui/EmptyState";
+import { cn } from "../../../utils/cn";
 import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -17,78 +20,125 @@ export const REVALIDATE_SECONDS = 60;
 export default function Category({ productsAndAverage }: CategoryProps) {
   const router = useRouter();
   const categoryId = router.query.categoryId;
-  const subcategoryId = router.query.subcategory || null;
+  const subcategoryId =
+    typeof router.query.subcategory === "string"
+      ? router.query.subcategory
+      : null;
   const currentCategory = catalogs.find(
     (category) => category.id === categoryId,
   );
+  const count = productsAndAverage.length;
 
   return (
-    <Container className="flex gap-6 py-4">
-      <div className="sticky top-20 hidden w-52 shrink-0 self-start rounded-lg border border-border bg-surface p-3 md:block">
-        <h2 className="mb-3 text-2xl font-bold">Categories</h2>
-        {catalogs.map((category, index) => {
-          return (
-            <div key={index}>
-              <Link href={category.link}>
-                <h3
-                  className={`${
-                    category.id === categoryId && "text-lg font-bold"
-                  } mt-1 transition-transform duration-200 ease-in-out hover:scale-[1.02]`}
+    <Container className="flex gap-8 py-6">
+      <nav
+        aria-label="Categories"
+        className="sticky top-22 hidden w-56 shrink-0 self-start md:block"
+      >
+        <h2 className="mb-3 px-3 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+          Categories
+        </h2>
+        <ul className="space-y-0.5">
+          {catalogs.map((category) => {
+            const isActive = category.id === categoryId;
+            return (
+              <li key={category.id}>
+                <Link
+                  href={category.link}
+                  aria-current={isActive && !subcategoryId ? "page" : undefined}
+                  className={cn(
+                    "block rounded-md px-3 py-1.5 text-sm hover:bg-foreground/5",
+                    isActive && "font-semibold text-primary",
+                  )}
                 >
                   {category.name}
-                </h3>
-              </Link>
-              {category.id === categoryId &&
-                category.subcategory.map((subcategory, index) => {
-                  return (
-                    <Link key={index} href={`${category.link}/${subcategory}`}>
-                      <p
-                        className={`${
-                          subcategory === subcategoryId && "text-lg font-bold"
-                        } pl-5 transition-transform duration-200 ease-in-out hover:scale-[1.02]`}
-                      >
-                        {subcategory}
-                      </p>
-                    </Link>
-                  );
-                })}
-            </div>
-          );
-        })}
-      </div>
+                </Link>
+                {isActive && (
+                  <ul className="my-1 ml-3 space-y-0.5 border-l border-border pl-2">
+                    {category.subcategory.map((subcategory) => (
+                      <li key={subcategory}>
+                        <Link
+                          href={`${category.link}/${subcategory}`}
+                          aria-current={
+                            subcategory === subcategoryId ? "page" : undefined
+                          }
+                          className={cn(
+                            "block rounded-md px-3 py-1 text-sm text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
+                            subcategory === subcategoryId &&
+                              "bg-primary/10 font-medium text-primary",
+                          )}
+                        >
+                          {subcategory}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
       <div className="min-w-0 flex-1">
-        <h3 className="mb-2 border-b border-border pl-1 text-2xl font-bold md:hidden">
-          {currentCategory?.name}
-        </h3>
-        <div className="flex items-center md:hidden">
-          {currentCategory?.subcategory.map((subcategory, index) => {
-            return (
-              <Link key={index} href={`/category/${categoryId}/${subcategory}`}>
-                <p
-                  className={`${
-                    subcategory === subcategoryId && "text-lg font-bold"
-                  } pl-2`}
-                >
-                  {subcategory}
-                </p>
-              </Link>
-            );
-          })}
-        </div>
-        <div className="my-2 justify-center md:flex md:flex-wrap">
-          {productsAndAverage.length === 0 && (
-            <p className="pt-5 text-center">No products found</p>
-          )}
-          {productsAndAverage.map((products) => {
-            return (
-              <ProductCard
-                key={products.product._id}
-                product={products.product}
-                reviewAverage={products.reviewAverage}
-              />
-            );
-          })}
-        </div>
+        {subcategoryId && currentCategory && (
+          <Link
+            href={currentCategory.link}
+            className="text-sm text-link hover:underline"
+          >
+            {currentCategory.name}
+          </Link>
+        )}
+        <h1 className="text-2xl font-bold md:text-3xl">
+          {subcategoryId ?? currentCategory?.name}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {count} product{count !== 1 && "s"}
+        </p>
+        {/* phones get the subcategories as a scrollable row of chips */}
+        {currentCategory && (
+          <nav
+            aria-label="Subcategories"
+            className="-mx-4 mt-4 overflow-x-auto px-4 md:hidden"
+          >
+            <ul className="flex gap-2">
+              {[null, ...currentCategory.subcategory].map((subcategory) => {
+                const isActive = subcategory === subcategoryId;
+                return (
+                  <li key={subcategory ?? "all"}>
+                    <Link
+                      href={
+                        subcategory
+                          ? `${currentCategory.link}/${subcategory}`
+                          : currentCategory.link
+                      }
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "block rounded-full border px-4 py-1.5 text-sm whitespace-nowrap",
+                        isActive
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-surface hover:bg-muted",
+                      )}
+                    >
+                      {subcategory ?? "All"}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        )}
+        {count > 0 ? (
+          <ProductGrid
+            products={productsAndAverage}
+            className="mt-6 xl:grid-cols-4"
+          />
+        ) : (
+          <EmptyState
+            icon={BsBoxSeam}
+            title="No products here yet"
+            description="Try another category."
+          />
+        )}
       </div>
     </Container>
   );

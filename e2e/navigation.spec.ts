@@ -26,6 +26,27 @@ test("the hero carousel moves between slides", async ({ page }) => {
   await expect(page).toHaveURL("/category/clothes/Shoes");
 });
 
+test("the category menu narrows down to a subcategory", async ({ page }) => {
+  await visit(page, "/category/books");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Books");
+  const menu = page.getByRole("navigation", { name: "Categories" });
+  await menu.getByRole("link", { name: "Fantasy" }).click();
+  await expect(page).toHaveURL("/category/books/Fantasy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fantasy");
+  await expect(menu.getByRole("link", { name: "Fantasy" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.getByRole("main").getByRole("listitem")).not.toHaveCount(0);
+});
+
+test("a search without results says so", async ({ page }) => {
+  await page.goto("/search?q=zzzqqq");
+  await expect(
+    page.getByRole("heading", { name: "No products found" }),
+  ).toBeVisible();
+});
+
 test("search suggests products and opens the results", async ({ page }) => {
   await visit(page, "/");
   const search = page.getByRole("combobox", { name: "Search products" });

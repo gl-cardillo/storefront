@@ -20,27 +20,30 @@ export default function ProductCard({
     product.categoryId === "books" || product.subcategory === "Videogame";
 
   return (
-    <Link href={`/product/${product._id}`}>
-      <Card className="m-2 flex w-full gap-5 p-3 transition-shadow duration-200 hover:shadow-lg md:h-100 md:w-61 md:flex-col lg:w-75">
+    <Link href={`/product/${product._id}`} className="group">
+      <Card className="flex h-full flex-col overflow-hidden transition-shadow duration-200 group-hover:shadow-lg">
         {/* product photos have white backgrounds, covers sit on a neutral tile */}
         <div
           className={cn(
-            "relative h-37.5 w-32.5 min-w-32.5 overflow-hidden rounded-md md:h-52.5 md:w-full",
+            "relative aspect-square",
             isCover ? "bg-muted" : "bg-white",
           )}
         >
           <Image
             src={product.picUrl}
-            alt={product.name}
+            alt=""
             fill
-            sizes="(min-width: 1024px) 300px, (min-width: 768px) 245px, 130px"
-            className={isCover ? "object-contain" : "object-cover"}
+            sizes="(min-width: 1280px) 300px, (min-width: 640px) 33vw, 50vw"
+            className={isCover ? "object-contain p-3" : "object-cover"}
           />
         </div>
-        <div>
-          <p className="text-sm font-semibold md:text-base">{product.name}</p>
-          <Stars rating={reviewAverage} className="my-5" />
-          <Price amount={product.price} className="font-bold" />
+        <div className="flex flex-1 flex-col gap-2 p-3">
+          <h3 className="line-clamp-2 text-sm font-medium group-hover:underline md:text-base">
+            {product.name}
+          </h3>
+          {/* ratings are 1 to 5, so an average of 0 means no reviews yet */}
+          <Stars rating={reviewAverage || undefined} size="sm" />
+          <Price amount={product.price} className="mt-auto font-bold" />
         </div>
       </Card>
     </Link>

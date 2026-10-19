@@ -16,7 +16,7 @@ export default function Footer() {
             MongoDB. Nothing here is for sale.
           </p>
         </div>
-        <nav aria-label="Categories">
+        <nav aria-label="Shop categories">
           <h2 className="text-sm font-semibold">Shop</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             {catalogs.map((catalog) => (
