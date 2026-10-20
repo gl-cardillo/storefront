@@ -4,6 +4,7 @@ import Card from "./ui/Card";
 import Stars from "./ui/Stars";
 import Price from "./ui/Price";
 import { cn } from "../utils/cn";
+import { isCover } from "../utils/product";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
@@ -15,9 +16,7 @@ export default function ProductCard({
   product,
   reviewAverage,
 }: ProductCardProps) {
-  // book and game covers are portrait, show them whole instead of cropping
-  const isCover =
-    product.categoryId === "books" || product.subcategory === "Videogame";
+  const cover = isCover(product);
 
   return (
     <Link href={`/product/${product._id}`} className="group">
@@ -26,7 +25,7 @@ export default function ProductCard({
         <div
           className={cn(
             "relative aspect-square",
-            isCover ? "bg-muted" : "bg-white",
+            cover ? "bg-muted" : "bg-white",
           )}
         >
           <Image
@@ -34,7 +33,7 @@ export default function ProductCard({
             alt=""
             fill
             sizes="(min-width: 1280px) 300px, (min-width: 640px) 33vw, 50vw"
-            className={isCover ? "object-contain p-3" : "object-cover"}
+            className={cover ? "object-contain p-3" : "object-cover"}
           />
         </div>
         <div className="flex flex-1 flex-col gap-2 p-3">

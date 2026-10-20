@@ -6,6 +6,9 @@ interface ConfirmDialogProps {
   title: string;
   description?: string;
   confirmLabel: string;
+  cancelLabel?: string;
+  // destructive for deletes, primary for everything else
+  confirmVariant?: "primary" | "destructive";
   // disables the buttons while the action runs
   pending?: boolean;
   onConfirm: () => void;
@@ -18,6 +21,8 @@ export default function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  cancelLabel = "Cancel",
+  confirmVariant = "destructive",
   pending = false,
   onConfirm,
   onCancel,
@@ -55,9 +60,9 @@ export default function ConfirmDialog({
           disabled={pending}
           autoFocus
         >
-          Cancel
+          {cancelLabel}
         </Button>
-        <Button variant="destructive" onClick={onConfirm} disabled={pending}>
+        <Button variant={confirmVariant} onClick={onConfirm} disabled={pending}>
           {confirmLabel}
         </Button>
       </div>

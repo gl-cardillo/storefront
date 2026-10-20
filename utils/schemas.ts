@@ -50,7 +50,7 @@ export const profileSchema = z.object({
 });
 
 export const reviewSchema = z.object({
-  review: z.string().min(2, "review must be at least 2 characters"),
+  review: z.string().min(2, "Review must be at least 2 characters"),
 });
 
 // api request bodies
@@ -96,4 +96,4 @@ export const removeFromCartSchema = z.object({
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
-export type ReviewInput = z.infer<typeof reviewSchema>;
+export type ReviewRequest = z.infer<typeof reviewRequestSchema>;

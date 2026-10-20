@@ -1,19 +1,22 @@
 import { useState } from "react";
-import { MdKeyboardArrowDown } from "react-icons/md";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { BsCheckCircleFill } from "react-icons/bs";
 import { getProductById } from "../../lib/products";
 import { getReviewSummary } from "../../lib/reviews";
-import ImageSelector from "../../components/ImageSelector";
+import ImageGallery from "../../components/ImageGallery";
+import Reviews from "../../components/Reviews";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import Container from "../../components/ui/Container";
 import Price from "../../components/ui/Price";
+import QuantityStepper from "../../components/ui/QuantityStepper";
 import Stars from "../../components/ui/Stars";
-import { cn } from "../../utils/cn";
-import Reviews from "../../components/Reviews";
 import { useMe } from "../../hooks/useAuth";
 import { useAddToCart } from "../../hooks/useCart";
 import { MAX_CART_QUANTITY } from "../../utils/constants";
+import { catalogs } from "../../utils/catalogs";
 import type { GetServerSideProps } from "next";
 import type { Product as ProductType, Review, ReviewSummary } from "@/types";
 
@@ -30,12 +33,20 @@ export default function Product({
   ratingArray,
   ratingAverage,
 }: ProductProps) {
-  const [showDescription, setShowDescription] = useState(false);
   const [askLogin, setAskLogin] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
   const { user } = useMe();
   const addToCartMutation = useAddToCart();
+  const category = catalogs.find(
+    (catalog) => catalog.id === product.categoryId,
+  );
+  const descriptions = [
+    product.description,
+    product.description2,
+    product.description3,
+  ].filter(Boolean);
+  const reviewCount = reviews.length;
 
   const addToCart = () => {
     if (!user) {
@@ -48,152 +59,104 @@ export default function Product({
     );
   };
 
-  const increaseQuantity = () => {
-    if (quantity === MAX_CART_QUANTITY) return;
-    setQuantity(quantity + 1);
-  };
-
-  const decreaseQuantity = () => {
-    if (quantity === 1) return;
-    setQuantity(quantity - 1);
-  };
-
   return (
-    <Container size="md" className="flex flex-col pb-4">
-      <Card className="my-3 flex flex-col items-center gap-5 p-5 md:hidden">
-        <h3 className="text-xl font-bold">{product.name}</h3>
-        <div className="flex items-center">
-          <Stars rating={ratingAverage} />
-          <p className="pl-2 text-sm">
-            {(Math.round(ratingAverage * 100) / 100).toFixed(1)} out of 5
-          </p>
-        </div>
-        <ImageSelector product={product} />
-        <Price amount={product.price} className="text-xl font-bold" />
-        <div className="flex flex-col items-center">
-          <div className="mb-2 flex items-center gap-1 font-semibold">
-            <p>About this item</p>
-            <button
-              onClick={() => {
-                setShowDescription(!showDescription);
-              }}
-            >
-              <MdKeyboardArrowDown
-                className={cn("text-xl", showDescription && "rotate-180")}
-              />
-            </button>
-          </div>
-          {showDescription && (
-            <div className="max-w-sm">
-              <p>&#8226;{product.description}</p>
-              <p>&#8226;{product.description2 && product.description2}</p>
-              <p>&#8226;{product.description3}</p>
-            </div>
-          )}
-        </div>
-      </Card>
-      <Card className="my-3 hidden flex-col items-center p-3 md:flex">
-        <div className="flex h-80 w-full items-center justify-between gap-5">
-          <div className="w-1/3 p-2">
-            <ImageSelector product={product} />
-          </div>
-          <div className="flex h-80 w-[60%] flex-col justify-around pt-5 align-baseline">
-            <h3 className="text-lg font-bold lg:text-xl xl:text-3xl">
-              {product.name}
-            </h3>
-            <div className="flex gap-2">
-              <p className="font-bold">
-                {product.categoryName === "Books" ? "Author" : "Manufacturer"}
-                :{" "}
-              </p>
-              <p>{product.manufacturer}</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <Stars rating={ratingAverage} />
-              <p className="pl-2 text-lg">
-                {(Math.round(ratingAverage * 100) / 100).toFixed(1)} out of 5
-              </p>
-            </div>
-            <Price
-              amount={product.price}
-              className="text-lg font-bold xl:text-xl"
-            />
-            <div className="mb-2 flex items-center gap-1">
-              <p>About this item</p>
-              <button
-                onClick={() => {
-                  setShowDescription(!showDescription);
-                }}
+    <Container className="py-6">
+      {category && (
+        // no prefetch, chrome can stall a repeat of a prefetch aborted by navigation
+        <nav aria-label="Breadcrumb" className="mb-4 text-sm">
+          <ol className="flex flex-wrap items-center gap-1 text-muted-foreground">
+            <li>
+              <Link
+                href={category.link}
+                prefetch={false}
+                className="hover:text-foreground"
               >
-                <MdKeyboardArrowDown
-                  className={cn("text-xl", showDescription && "rotate-180")}
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-        {showDescription && (
-          <div className="w-[60%] self-end">
-            <p className="text-sm">&#8226;{product.description}</p>
-            <p className="py-2 text-sm">&#8226;{product.description2}</p>
-            <p className="text-sm">&#8226;{product.description3}</p>
-          </div>
-        )}
-      </Card>
-      <Card className="flex flex-col items-center gap-3 py-5">
-        <p className="font-semibold text-success">In Stock</p>
-        <div className="flex w-17.5 gap-3 rounded-2xl border border-border px-2">
-          <button
-            onClick={() => decreaseQuantity()}
-            aria-label="Decrease quantity"
-          >
-            -
-          </button>
-          <p>{quantity}</p>
-          <button
-            onClick={() => increaseQuantity()}
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
-        </div>
-
-        <Button
-          size="lg"
-          onClick={addToCart}
-          disabled={addToCartMutation.isPending}
-          className="w-75"
-        >
-          Add to Cart
-        </Button>
-      </Card>
-      <Reviews
-        reviews={reviews}
-        ratingArray={ratingArray}
-        product={product}
-        setAskLogin={setAskLogin}
-      />
-      {askLogin && (
-        <div className="fixed top-0 left-0 z-40 h-full w-full bg-black/50">
-          <Card className="absolute top-1/2 left-1/2 w-75 -translate-x-1/2 -translate-y-1/2 p-4 text-lg shadow-lg">
-            <p className="text-center font-semibold text-muted-foreground">
-              You need to login first
+                {category.name}
+              </Link>
+            </li>
+            <li aria-hidden>/</li>
+            <li>
+              <Link
+                href={`${category.link}/${product.subcategory}`}
+                prefetch={false}
+                className="hover:text-foreground"
+              >
+                {product.subcategory}
+              </Link>
+            </li>
+          </ol>
+        </nav>
+      )}
+      <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
+        <ImageGallery product={product} />
+        <div className="flex flex-col gap-5">
+          <div>
+            <h1 className="text-2xl font-bold md:text-3xl">{product.name}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {product.categoryName === "Books" ? "Author" : "Manufacturer"}:{" "}
+              <span className="text-foreground">{product.manufacturer}</span>
             </p>
-            <div className="flex justify-around">
+          </div>
+          <a href="#reviews" className="flex items-center gap-2 text-sm">
+            <Stars rating={reviewCount > 0 ? ratingAverage : undefined} />
+            <span className="text-link hover:underline">
+              {reviewCount > 0
+                ? `${ratingAverage.toFixed(1)} · ${reviewCount} review${reviewCount !== 1 ? "s" : ""}`
+                : "No reviews yet"}
+            </span>
+          </a>
+          <Price amount={product.price} className="text-3xl font-bold" />
+          <Card className="flex flex-col gap-4 p-4">
+            <p className="flex items-center gap-2 text-sm font-medium text-success">
+              <BsCheckCircleFill aria-hidden /> In stock
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <QuantityStepper
+                value={quantity}
+                onDecrease={() => setQuantity(quantity - 1)}
+                onIncrease={() => setQuantity(quantity + 1)}
+                decreaseDisabled={quantity === 1}
+                increaseDisabled={quantity === MAX_CART_QUANTITY}
+              />
               <Button
-                variant="secondary"
-                className="mt-5"
-                onClick={() => setAskLogin(false)}
+                size="lg"
+                onClick={addToCart}
+                disabled={addToCartMutation.isPending}
+                className="flex-1"
               >
-                Cancel
-              </Button>
-              <Button className="mt-5" onClick={() => router.push("/signin")}>
-                Go to login page
+                Add to Cart
               </Button>
             </div>
           </Card>
+          {descriptions.length > 0 && (
+            <div>
+              <h2 className="font-semibold">About this item</h2>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                {descriptions.map((description) => (
+                  <li key={description}>{description}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+      <Reviews
+        reviews={reviews}
+        ratingArray={ratingArray}
+        ratingAverage={ratingAverage}
+        product={product}
+        setAskLogin={setAskLogin}
+      />
+      <ConfirmDialog
+        open={askLogin}
+        title="Sign in to continue"
+        description="You need an account to add items to your cart or write a review."
+        confirmLabel="Sign in"
+        cancelLabel="Not now"
+        confirmVariant="primary"
+        onConfirm={() => router.push("/signin")}
+        onCancel={() => setAskLogin(false)}
+      />
     </Container>
   );
 }
