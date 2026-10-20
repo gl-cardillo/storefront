@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
+import { BsCart2, BsTrash } from "react-icons/bs";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useMe } from "../hooks/useAuth";
 import {
@@ -16,6 +17,10 @@ import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import Price from "../components/ui/Price";
+import EmptyState from "../components/ui/EmptyState";
+import QuantityStepper from "../components/ui/QuantityStepper";
+import { cn } from "../utils/cn";
+import { isCover } from "../utils/product";
 
 export default function Cart() {
   const { user, isLoading } = useMe();
@@ -63,109 +68,125 @@ export default function Cart() {
   };
 
   return (
-    <Container size="md" className="py-5">
-      <Card className="flex flex-col p-4 md:px-10">
-        <h2 className="text-xl font-bold text-foreground">Shopping Basket</h2>
-        <div>
-          {cart ? (
-            cart.length > 0 ? (
-              <div>
-                {cart.map((productCart) => {
-                  return (
-                    <div
-                      key={productCart.product._id}
-                      className="my-5 flex min-h-25 justify-between border-b border-border py-2"
+    <Container className="py-6">
+      <h1 className="text-2xl font-bold md:text-3xl">Shopping basket</h1>
+      {cart && cart.length === 0 ? (
+        <Card className="mt-6">
+          <EmptyState
+            icon={BsCart2}
+            title="Your basket is empty"
+            description="Find something you like and add it to your basket."
+          >
+            <Button onClick={() => router.push("/")}>Start shopping</Button>
+          </EmptyState>
+        </Card>
+      ) : (
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_20rem]">
+          <Card className="px-4 md:px-6">
+            {cart ? (
+              <ul className="divide-y divide-border">
+                {cart.map(({ product, quantity }) => (
+                  <li key={product._id} className="flex gap-4 py-5">
+                    <Link
+                      href={`/product/${product._id}`}
+                      className={cn(
+                        "relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-border",
+                        isCover(product) ? "bg-muted" : "bg-white",
+                      )}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex w-25 items-center justify-center rounded-md bg-white p-1">
-                          <Image
-                            src={productCart.product.picUrl}
-                            width={50}
-                            height={70}
-                            className="h-17.5 w-auto min-w-12.5 object-contain"
-                            alt={productCart.product.name}
+                      <Image
+                        src={product.picUrl}
+                        fill
+                        sizes="80px"
+                        className="object-contain p-1"
+                        alt={product.name}
+                      />
+                    </Link>
+                    <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:justify-between">
+                      <div className="min-w-0">
+                        <Link
+                          href={`/product/${product._id}`}
+                          className="line-clamp-2 font-medium hover:underline"
+                        >
+                          {product.name}
+                        </Link>
+                        {quantity > 1 && (
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            <Price amount={product.price} /> each
+                          </p>
+                        )}
+                        <div className="mt-3 flex items-center gap-4">
+                          <QuantityStepper
+                            value={quantity}
+                            onDecrease={() =>
+                              updateQuantity(product._id, quantity, "-1")
+                            }
+                            onIncrease={() =>
+                              updateQuantity(product._id, quantity, "+1")
+                            }
+                            decreaseDisabled={disableButton}
+                            increaseDisabled={disableButton}
                           />
+                          <button
+                            type="button"
+                            onClick={() => removeProduct(product._id)}
+                            disabled={disableButton}
+                            className="flex items-center gap-1 text-sm text-link hover:underline disabled:opacity-50"
+                          >
+                            <BsTrash aria-hidden /> Remove
+                          </button>
                         </div>
-                        <div className="flex flex-col gap-5">
-                          <Link href={`/product/${productCart.product._id}`}>
-                            <h3 className="text-sm font-semibold">
-                              {productCart.product.name}
-                            </h3>
-                          </Link>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-3 rounded-2xl border border-border px-2 text-sm">
-                                <button
-                                  onClick={() =>
-                                    updateQuantity(
-                                      productCart.product._id,
-                                      productCart.quantity,
-                                      "-1",
-                                    )
-                                  }
-                                  disabled={disableButton}
-                                  aria-label="Decrease quantity"
-                                >
-                                  -
-                                </button>
-                                <p>{productCart.quantity}</p>
-                                <button
-                                  onClick={() =>
-                                    updateQuantity(
-                                      productCart.product._id,
-                                      productCart.quantity,
-                                      "+1",
-                                    )
-                                  }
-                                  disabled={disableButton}
-                                  aria-label="Increase quantity"
-                                >
-                                  +
-                                </button>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  removeProduct(productCart.product._id)
-                                }
-                                disabled={disableButton}
-                                className="text-sm text-link"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                            {limitReachedId === productCart.product._id && (
-                              <p className="text-xs text-danger">
-                                The limit is {MAX_CART_QUANTITY}
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                        {limitReachedId === product._id && (
+                          <p role="alert" className="mt-2 text-xs text-danger">
+                            The limit is {MAX_CART_QUANTITY}
+                          </p>
+                        )}
                       </div>
                       <Price
-                        amount={productCart.product.price}
-                        className="text-sm font-bold"
+                        amount={product.price * quantity}
+                        className="font-bold sm:text-right"
                       />
                     </div>
-                  );
-                })}
-              </div>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <div className="flex flex-col items-center gap-1 py-3">
-                <p>Basket is empty</p>
-                <Button className="mt-1" onClick={() => router.push("/")}>
-                  Go to shopping!
-                </Button>
+              <div className="py-5">
+                <Skeleton height={80} count={3} className="mb-4" />
               </div>
-            )
-          ) : (
-            <Skeleton height={100} count={3} />
-          )}
+            )}
+          </Card>
+          <Card className="flex flex-col gap-3 p-5 lg:sticky lg:top-22">
+            <h2 className="text-lg font-semibold">Order summary</h2>
+            <dl className="flex flex-col gap-2 text-sm">
+              <div className="flex justify-between">
+                <dt>
+                  Subtotal ({cartQuantity} item{cartQuantity !== 1 && "s"})
+                </dt>
+                <dd>
+                  <Price amount={totalPrice} />
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Delivery</dt>
+                <dd className="text-success">Free</dd>
+              </div>
+              <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
+                <dt>Total</dt>
+                <dd>
+                  <Price amount={totalPrice} />
+                </dd>
+              </div>
+            </dl>
+            <Button size="lg" disabled className="mt-2 w-full">
+              Checkout
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Checkout is turned off in this demo.
+            </p>
+          </Card>
         </div>
-        <div className="flex items-center gap-1 self-end">
-          <p className="text-sm">{`Subtotal (${cartQuantity} items):`}</p>
-          <Price amount={totalPrice} className="font-bold" />
-        </div>
-      </Card>
+      )}
     </Container>
   );
 }

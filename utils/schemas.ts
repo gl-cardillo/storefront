@@ -3,9 +3,12 @@ import { MAX_CART_QUANTITY } from "./constants";
 
 const nameField = z
   .string()
-  .min(2, "name must be at least 2 characters")
-  .max(50, "name must be at most 50 characters")
-  .regex(/^[a-zA-Z0-9 _]*$/, "Special character not allowed.");
+  .min(2, "Name must be at least 2 characters")
+  .max(50, "Name must be at most 50 characters")
+  .regex(
+    /^[a-zA-Z0-9 _]*$/,
+    "Use only letters, numbers, spaces and underscores",
+  );
 
 export const signupSchema = z.object({
   name: nameField,
@@ -13,15 +16,15 @@ export const signupSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .min(1, "email is a required field")
-    .pipe(z.email("email must be a valid email")),
+    .min(1, "Email is required")
+    .pipe(z.email("Enter a valid email address")),
   password: z
     .string()
-    .min(8, "password must be at least 8 characters")
-    .max(15, "password must be at most 15 characters")
+    .min(8, "Password must be at least 8 characters")
+    .max(15, "Password must be at most 15 characters")
     .regex(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?])[A-Za-z\d@$!%*#?]{8,}$/,
-      "Password must be eight characters, at least one letter, one number and one special character(@$!%*#?)",
+      "Include a letter, a number and one of @$!%*#?",
     ),
 });
 
@@ -31,15 +34,15 @@ export const loginSchema = z.object({
     .trim()
     .toLowerCase()
     .min(1, "Email is required")
-    .pipe(z.email("emailLogin must be a valid email")),
+    .pipe(z.email("Enter a valid email address")),
   passwordLogin: z.string().min(1, "Password is required"),
 });
 
 export const profileSchema = z.object({
   name: nameField,
-  address: z.string().max(50, "address must be at most 50 characters"),
-  city: z.string().max(30, "city must be at most 30 characters"),
-  postcode: z.string().max(10, "postcode must be at most 10 characters"),
+  address: z.string().max(50, "Address must be at most 50 characters"),
+  city: z.string().max(30, "City must be at most 30 characters"),
+  postcode: z.string().max(10, "Postcode must be at most 10 characters"),
   // empty string when the date input is cleared
   dateOfBirth: z
     .string()

@@ -37,11 +37,12 @@ export async function productPath(request: APIRequestContext, index = 0) {
 
 export async function signUp(page: Page, name: string, email: string) {
   await visit(page, "/signin");
+  await page.getByRole("tab", { name: "Create account" }).click();
   const form = page.getByRole("form", { name: "Create account" });
   await form.getByLabel("First and last name").fill(name);
   await form.getByLabel("Email").fill(email);
   await form.getByLabel("Password").fill(PASSWORD);
-  await form.getByRole("button", { name: "Continue" }).click();
+  await form.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByRole("link", { name: "Account" })).toBeVisible();
   await expect(page).toHaveURL("/");
 }

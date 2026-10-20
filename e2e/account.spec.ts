@@ -34,15 +34,15 @@ test("sign up, shop, edit profile, log in and delete", async ({
 
   await test.step("change quantities in the basket", async () => {
     await visit(page, "/cart");
-    await expect(page.getByText("Subtotal (2 items):")).toBeVisible();
+    await expect(page.getByText("Subtotal (2 items)")).toBeVisible();
     await increase.click();
-    await expect(page.getByText("Subtotal (3 items):")).toBeVisible();
+    await expect(page.getByText("Subtotal (3 items)")).toBeVisible();
     await expect(cart).toHaveAccessibleName("Cart, 3 items");
     await decrease.click();
-    await expect(page.getByText("Subtotal (2 items):")).toBeVisible();
+    await expect(page.getByText("Subtotal (2 items)")).toBeVisible();
     await expect(cart).toHaveAccessibleName("Cart, 2 items");
     await page.getByRole("button", { name: "Remove" }).click();
-    await expect(page.getByText("Basket is empty")).toBeVisible();
+    await expect(page.getByText("Your basket is empty")).toBeVisible();
     await expect(cart).toHaveAccessibleName("Cart");
   });
 
@@ -55,7 +55,7 @@ test("sign up, shop, edit profile, log in and delete", async ({
     await increase.click();
     await expect(page.getByText("The limit is 9")).toBeVisible();
     await page.getByRole("button", { name: "Remove" }).click();
-    await expect(page.getByText("Basket is empty")).toBeVisible();
+    await expect(page.getByText("Your basket is empty")).toBeVisible();
   });
 
   await test.step("edit the profile", async () => {
@@ -81,14 +81,14 @@ test("sign up, shop, edit profile, log in and delete", async ({
 
   await test.step("log in", async () => {
     await visit(page, "/signin");
-    await page.getByRole("radio", { name: "Sign in" }).check();
+    await page.getByRole("tab", { name: "Sign in" }).click();
     const form = page.getByRole("form", { name: "Sign in" });
     await form.getByLabel("Email").fill(email);
     await form.getByLabel("Password").fill("wrong-password");
-    await form.getByRole("button", { name: "Continue" }).click();
+    await form.getByRole("button", { name: "Sign in" }).click();
     await expect(page.getByText("Credentials are incorrect")).toBeVisible();
     await form.getByLabel("Password").fill(PASSWORD);
-    await form.getByRole("button", { name: "Continue" }).click();
+    await form.getByRole("button", { name: "Sign in" }).click();
     await expect(page.getByRole("link", { name: "Account" })).toBeVisible();
     await expect(page).toHaveURL("/");
   });
@@ -114,9 +114,9 @@ test("sign up, shop, edit profile, log in and delete", async ({
   });
 });
 
-test("the test account button logs in", async ({ page }) => {
+test("the demo account button logs in", async ({ page }) => {
   await visit(page, "/signin");
-  await page.getByRole("button", { name: "Login with test account" }).click();
+  await page.getByRole("button", { name: "Try the demo account" }).click();
   await expect(page.getByRole("link", { name: "Account" })).toBeVisible();
   await expect(page).toHaveURL("/");
 });
@@ -131,4 +131,19 @@ test("an invalid token logs the user out", async ({ page }) => {
   expect(
     await page.evaluate(() => localStorage.getItem("token_amazon_lc")),
   ).toBeNull();
+});
+
+test("the sign in tabs work with the arrow keys", async ({ page }) => {
+  await visit(page, "/signin");
+  const signIn = page.getByRole("tab", { name: "Sign in" });
+  const createAccount = page.getByRole("tab", { name: "Create account" });
+  await expect(signIn).toHaveAttribute("aria-selected", "true");
+  await signIn.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(createAccount).toBeFocused();
+  await expect(createAccount).toHaveAttribute("aria-selected", "true");
+  await expect(
+    page.getByRole("form", { name: "Create account" }),
+  ).toBeVisible();
+  await expect(page.getByRole("form", { name: "Sign in" })).toBeHidden();
 });
