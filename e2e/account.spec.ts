@@ -61,16 +61,16 @@ test("sign up, shop, edit profile, log in and delete", async ({
   await test.step("edit the profile", async () => {
     await visit(page, "/profile");
     await expect(
-      page.getByRole("heading", { name: "Welcome Step" }),
+      page.getByRole("heading", { name: "Welcome, Step" }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Show details" }).click();
     await page.getByRole("button", { name: "Edit details" }).click();
     await expect(page.getByLabel("Name")).toHaveValue("Step Seven");
     await page.getByLabel("City").fill("Leeds");
     await page.getByLabel("Date of birth").fill("1990-01-15");
     await page.getByRole("button", { name: "Update" }).click();
-    await expect(page.getByText("City: Leeds")).toBeVisible();
-    await expect(page.getByText(/Date of birth:.*1990/)).toBeVisible();
+    const details = page.getByRole("definition");
+    await expect(details.filter({ hasText: "Leeds" })).toBeVisible();
+    await expect(details.filter({ hasText: "1990" })).toBeVisible();
   });
 
   await test.step("log out to the home page", async () => {
@@ -146,4 +146,19 @@ test("the sign in tabs work with the arrow keys", async ({ page }) => {
     page.getByRole("form", { name: "Create account" }),
   ).toBeVisible();
   await expect(page.getByRole("form", { name: "Sign in" })).toBeHidden();
+});
+
+test("the chosen currency survives a reload", async ({ page, request }) => {
+  await visit(page, "/signin");
+  await page.getByRole("button", { name: "Try the demo account" }).click();
+  await expect(page.getByRole("link", { name: "Account" })).toBeVisible();
+  await visit(page, "/profile");
+  await page.getByRole("button", { name: "€" }).click();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "€" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await visit(page, await productPath(request));
+  await expect(page.getByText(/^€\d/).first()).toBeVisible();
 });

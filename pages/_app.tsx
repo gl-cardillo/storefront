@@ -3,7 +3,6 @@ import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
 import axios from "axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CurrencyContext, type CurrencySymbol } from "../utils/context";
 import { clearToken, readToken } from "../utils/storage";
 import { useState } from "react";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -47,33 +46,22 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     () =>
       new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } }),
   );
-  const [currencySymbol, setCurrencySymbol] = useState<CurrencySymbol>("£");
-  const [currencyRate, setCurrencyRate] = useState(1);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CurrencyContext.Provider
-        value={{
-          currencySymbol,
-          setCurrencySymbol,
-          currencyRate,
-          setCurrencyRate,
-        }}
+      <style jsx global>{`
+        :root {
+          --font-inter: ${inter.style.fontFamily};
+        }
+      `}</style>
+      <SkeletonTheme
+        baseColor="var(--color-muted)"
+        highlightColor="var(--color-border)"
       >
-        <style jsx global>{`
-          :root {
-            --font-inter: ${inter.style.fontFamily};
-          }
-        `}</style>
-        <SkeletonTheme
-          baseColor="var(--color-muted)"
-          highlightColor="var(--color-border)"
-        >
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </SkeletonTheme>
-      </CurrencyContext.Provider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </SkeletonTheme>
     </QueryClientProvider>
   );
 }
