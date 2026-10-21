@@ -5,7 +5,6 @@ import axios from "axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { clearToken, readToken } from "../utils/storage";
 import { useState } from "react";
-import { SkeletonTheme } from "react-loading-skeleton";
 import { Inter } from "next/font/google";
 
 // self-hosted at build time, no request to google fonts
@@ -54,14 +53,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           --font-inter: ${inter.style.fontFamily};
         }
       `}</style>
-      <SkeletonTheme
-        baseColor="var(--color-muted)"
-        highlightColor="var(--color-border)"
-      >
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </SkeletonTheme>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </QueryClientProvider>
   );
 }

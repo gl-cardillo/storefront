@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ME_KEY, useMe } from "./useAuth";
+import { ME_KEY, errorMessage, useMe } from "./useAuth";
+import { toast } from "../utils/toast";
 import type { CartProduct, User } from "@/types";
 
 const CART_KEY = ["cart"];
@@ -36,10 +37,12 @@ function useCartMutation<TVariables>(
       }
       return { previous };
     },
-    onError: (_error, _variables, context) => {
+    // undo the optimistic change and say why
+    onError: (error, _variables, context) => {
       if (context?.previous) {
         queryClient.setQueryData(CART_KEY, context.previous);
       }
+      toast(errorMessage(error), "error");
     },
     onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
     onSettled: () => queryClient.invalidateQueries({ queryKey: CART_KEY }),

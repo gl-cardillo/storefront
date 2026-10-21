@@ -30,6 +30,9 @@ test("sign up, shop, edit profile, log in and delete", async ({
     await increase.click();
     await page.getByRole("button", { name: "Add to Cart" }).click();
     await expect(cart).toHaveAccessibleName("Cart, 2 items");
+    await expect(
+      page.getByRole("status", { name: "Notifications" }),
+    ).toContainText("Added to your basket");
   });
 
   await test.step("change quantities in the basket", async () => {
@@ -41,6 +44,23 @@ test("sign up, shop, edit profile, log in and delete", async ({
     await decrease.click();
     await expect(page.getByText("Subtotal (2 items)")).toBeVisible();
     await expect(cart).toHaveAccessibleName("Cart, 2 items");
+
+    // a failed save is rolled back and explained
+    await page.route("**/api/cart/addToCart", (route) =>
+      route.request().method() === "PUT"
+        ? route.fulfill({
+            status: 500,
+            json: { message: "Could not update your basket" },
+          })
+        : route.continue(),
+    );
+    await increase.click();
+    await expect(
+      page.getByRole("status", { name: "Notifications" }),
+    ).toContainText("Could not update your basket");
+    await expect(page.getByText("Subtotal (2 items)")).toBeVisible();
+    await page.unroute("**/api/cart/addToCart");
+
     await page.getByRole("button", { name: "Remove" }).click();
     await expect(page.getByText("Your basket is empty")).toBeVisible();
     await expect(cart).toHaveAccessibleName("Cart");
@@ -161,4 +181,25 @@ test("the chosen currency survives a reload", async ({ page, request }) => {
   );
   await visit(page, await productPath(request));
   await expect(page.getByText(/^€\d/).first()).toBeVisible();
+});
+
+test("a basket that fails to load can be retried", async ({ page }) => {
+  await visit(page, "/signin");
+  await page.getByRole("button", { name: "Try the demo account" }).click();
+  await expect(page.getByRole("link", { name: "Account" })).toBeVisible();
+
+  let fail = true;
+  await page.route("**/api/cart/getCartProduct", (route) =>
+    fail ? route.fulfill({ status: 500, json: {} }) : route.continue(),
+  );
+  await visit(page, "/cart");
+  await expect(
+    page.getByRole("heading", { name: "We couldn't load your basket" }),
+  ).toBeVisible({ timeout: 15_000 });
+
+  fail = false;
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Order summary" }),
+  ).toBeVisible();
 });

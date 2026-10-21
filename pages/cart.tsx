@@ -2,9 +2,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import Skeleton from "react-loading-skeleton";
-import { BsCart2, BsTrash } from "react-icons/bs";
-import "react-loading-skeleton/dist/skeleton.css";
+import { BsCart2, BsExclamationTriangle, BsTrash } from "react-icons/bs";
 import { useMe } from "../hooks/useAuth";
 import {
   useCart,
@@ -18,13 +16,14 @@ import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import Price from "../components/ui/Price";
 import EmptyState from "../components/ui/EmptyState";
+import Skeleton from "../components/ui/Skeleton";
 import QuantityStepper from "../components/ui/QuantityStepper";
 import { cn } from "../utils/cn";
 import { isCover } from "../utils/product";
 
 export default function Cart() {
   const { user, isLoading } = useMe();
-  const { data: cart } = useCart();
+  const { data: cart, isError, refetch, isRefetching } = useCart();
   const updateCartQuantity = useUpdateCartQuantity();
   const removeFromCart = useRemoveFromCart();
   // id of the product that hit the quantity limit
@@ -70,7 +69,19 @@ export default function Cart() {
   return (
     <Container className="py-6">
       <h1 className="text-2xl font-bold md:text-3xl">Shopping basket</h1>
-      {cart && cart.length === 0 ? (
+      {isError && !cart ? (
+        <Card className="mt-6">
+          <EmptyState
+            icon={BsExclamationTriangle}
+            title="We couldn't load your basket"
+            description="Check your connection and try again."
+          >
+            <Button loading={isRefetching} onClick={() => refetch()}>
+              Try again
+            </Button>
+          </EmptyState>
+        </Card>
+      ) : cart && cart.length === 0 ? (
         <Card className="mt-6">
           <EmptyState
             icon={BsCart2}
@@ -151,33 +162,47 @@ export default function Cart() {
                 ))}
               </ul>
             ) : (
-              <div className="py-5">
-                <Skeleton height={80} count={3} className="mb-4" />
+              <div aria-busy="true" className="divide-y divide-border">
+                <span className="sr-only">Loading your basket</span>
+                {[0, 1, 2].map((row) => (
+                  <div key={row} className="flex gap-4 py-5">
+                    <Skeleton className="h-20 w-20 shrink-0" />
+                    <div className="flex flex-1 flex-col gap-3">
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-9 w-40" />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </Card>
           <Card className="flex flex-col gap-3 p-5 lg:sticky lg:top-22">
             <h2 className="text-lg font-semibold">Order summary</h2>
-            <dl className="flex flex-col gap-2 text-sm">
-              <div className="flex justify-between">
-                <dt>
-                  Subtotal ({cartQuantity} item{cartQuantity !== 1 && "s"})
-                </dt>
-                <dd>
-                  <Price amount={totalPrice} />
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>Delivery</dt>
-                <dd className="text-success">Free</dd>
-              </div>
-              <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
-                <dt>Total</dt>
-                <dd>
-                  <Price amount={totalPrice} />
-                </dd>
-              </div>
-            </dl>
+            {/* no totals until the items are in, 0 items would be misleading */}
+            {cart ? (
+              <dl className="flex flex-col gap-2 text-sm">
+                <div className="flex justify-between">
+                  <dt>
+                    Subtotal ({cartQuantity} item{cartQuantity !== 1 && "s"})
+                  </dt>
+                  <dd>
+                    <Price amount={totalPrice} />
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>Delivery</dt>
+                  <dd className="text-success">Free</dd>
+                </div>
+                <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
+                  <dt>Total</dt>
+                  <dd>
+                    <Price amount={totalPrice} />
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <Skeleton className="h-24" />
+            )}
             <Button size="lg" disabled className="mt-2 w-full">
               Checkout
             </Button>

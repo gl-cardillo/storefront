@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { errorMessage } from "../hooks/useAuth";
+import { toast } from "../utils/toast";
 import { reviewRequestSchema, type ReviewRequest } from "../utils/schemas";
 import Button from "./ui/Button";
 import { FieldError, Label, Textarea } from "./ui/Field";
@@ -28,6 +29,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
       await axios.post(`/api/review/${productId}`, data);
       // rerun getServerSideProps so the new review shows up
       await router.replace(router.asPath, undefined, { scroll: false });
+      toast("Thanks for your review");
     } catch (error) {
       setError("root", { message: errorMessage(error) });
     }
@@ -63,7 +65,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
         />
         <FieldError message={errors.review?.message} />
       </div>
-      <Button type="submit" disabled={isSubmitting} className="self-start">
+      <Button type="submit" loading={isSubmitting} className="self-start">
         Add review
       </Button>
     </form>

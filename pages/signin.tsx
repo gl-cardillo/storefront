@@ -14,6 +14,7 @@ import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import { FieldError, Input, Label } from "../components/ui/Field";
 import { cn } from "../utils/cn";
+import { toast } from "../utils/toast";
 
 type Mode = "login" | "signup";
 
@@ -58,10 +59,17 @@ export default function SignIn() {
     resolver: zodResolver(loginSchema),
   });
 
-  const signup = (data: SignupInput) => signupMutation.mutate(data);
+  const signup = (data: SignupInput) =>
+    signupMutation.mutate(data, {
+      onSuccess: () => toast("Account created, welcome!"),
+    });
 
   // called without data by the test account button
-  const login = (data?: LoginInput) => loginMutation.mutate(data);
+  const login = (data?: LoginInput) =>
+    loginMutation.mutate(data, { onSuccess: () => toast("Signed in") });
+  // the demo button and the form share one mutation, only spin the one clicked
+  const loggingIn = loginMutation.isPending;
+  const demoPending = loggingIn && loginMutation.variables === undefined;
 
   // arrow keys move between the two tabs, as the tabs pattern expects
   const handleTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -139,7 +147,12 @@ export default function SignIn() {
               />
               <FieldError message={errorsLogin.passwordLogin?.message} />
             </div>
-            <Button type="submit" size="lg" className="mt-2">
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-2"
+              loading={loggingIn && !demoPending}
+            >
               Sign in
             </Button>
           </form>
@@ -194,7 +207,13 @@ export default function SignIn() {
               </p>
               <FieldError message={errors.password?.message} />
             </div>
-            <Button type="submit" form="signup" size="lg" className="mt-2">
+            <Button
+              type="submit"
+              form="signup"
+              size="lg"
+              className="mt-2"
+              loading={signupMutation.isPending}
+            >
               Create account
             </Button>
           </form>
@@ -215,6 +234,8 @@ export default function SignIn() {
           size="lg"
           className="w-full"
           onClick={() => login()}
+          loading={demoPending}
+          disabled={loggingIn}
         >
           Try the demo account
         </Button>

@@ -17,6 +17,7 @@ import { useMe } from "../../hooks/useAuth";
 import { useAddToCart } from "../../hooks/useCart";
 import { MAX_CART_QUANTITY } from "../../utils/constants";
 import { catalogs } from "../../utils/catalogs";
+import { toast } from "../../utils/toast";
 import type { GetServerSideProps } from "next";
 import type { Product as ProductType, Review, ReviewSummary } from "@/types";
 
@@ -55,7 +56,12 @@ export default function Product({
     }
     addToCartMutation.mutate(
       { productId: product._id, quantity },
-      { onSuccess: () => setQuantity(1) },
+      {
+        onSuccess: () => {
+          setQuantity(1);
+          toast("Added to your basket");
+        },
+      },
     );
   };
 
@@ -121,7 +127,7 @@ export default function Product({
               <Button
                 size="lg"
                 onClick={addToCart}
-                disabled={addToCartMutation.isPending}
+                loading={addToCartMutation.isPending}
                 className="flex-1"
               >
                 Add to Cart

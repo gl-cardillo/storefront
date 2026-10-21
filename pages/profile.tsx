@@ -13,6 +13,7 @@ import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import { FieldError, Input, Label } from "../components/ui/Field";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
+import Skeleton from "../components/ui/Skeleton";
 import { useCurrency } from "../hooks/useCurrency";
 import {
   errorMessage,
@@ -72,7 +73,11 @@ export default function Profile() {
 
   const updateProfile = (data: ProfileInput) => {
     updateProfileMutation.mutate(data, {
-      onSuccess: () => setEditProfile(false),
+      onSuccess: () => {
+        setEditProfile(false);
+        toast("Profile updated");
+      },
+      onError: (error) => toast(errorMessage(error), "error"),
     });
   };
 
@@ -117,6 +122,24 @@ export default function Profile() {
       },
     });
   };
+
+  // logged out visitors are sent to /signin by the effect above
+  if (!user) {
+    return (
+      <Container size="md" className="py-8" aria-busy="true">
+        <span className="sr-only">Loading your account</span>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-14 w-14 rounded-full" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+        </div>
+        <Skeleton className="mt-8 h-60" />
+        <Skeleton className="mt-6 h-32" />
+      </Container>
+    );
+  }
 
   const details = [
     { label: "Name", value: user?.name },
@@ -181,7 +204,7 @@ export default function Profile() {
               </div>
             ))}
             <div className="flex gap-2 sm:col-span-2">
-              <Button type="submit" disabled={updateProfileMutation.isPending}>
+              <Button type="submit" loading={updateProfileMutation.isPending}>
                 Update
               </Button>
               <Button variant="secondary" onClick={cancelEdit}>
@@ -233,7 +256,13 @@ export default function Profile() {
       <Card className="mt-6 p-5 md:p-6">
         <h2 className="text-lg font-semibold">Account</h2>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-          <Button variant="secondary" onClick={() => logOut()}>
+          <Button
+            variant="secondary"
+            onClick={async () => {
+              await logOut();
+              toast("Signed out");
+            }}
+          >
             <HiOutlineLogout aria-hidden className="text-lg" /> Log out
           </Button>
           {user && user.email !== TEST_ACCOUNT_EMAIL ? (

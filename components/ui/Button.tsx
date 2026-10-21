@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "../../utils/cn";
+import Spinner from "./Spinner";
 
 const variants = {
   primary:
@@ -18,6 +19,8 @@ const sizes = {
 interface ButtonProps extends ComponentProps<"button"> {
   variant?: keyof typeof variants;
   size?: keyof typeof sizes;
+  // shows a spinner and blocks clicks while a request runs
+  loading?: boolean;
 }
 
 // type defaults to "button", forms pass type="submit"
@@ -25,19 +28,27 @@ export default function Button({
   variant = "primary",
   size = "md",
   type = "button",
+  loading = false,
+  disabled,
   className,
+  children,
   ...props
 }: ButtonProps) {
   return (
     <button
       type={type}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-wait aria-busy:opacity-80",
         variants[variant],
         sizes[size],
         className,
       )}
       {...props}
-    />
+    >
+      {loading && <Spinner />}
+      {children}
+    </button>
   );
 }

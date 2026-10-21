@@ -62,7 +62,7 @@ export default function ConfirmDialog({
         >
           {cancelLabel}
         </Button>
-        <Button variant={confirmVariant} onClick={onConfirm} disabled={pending}>
+        <Button variant={confirmVariant} onClick={onConfirm} loading={pending}>
           {confirmLabel}
         </Button>
       </div>

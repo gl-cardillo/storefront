@@ -56,5 +56,7 @@ export async function deleteAccount(page: Page) {
     .click();
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
   await expect(page).toHaveURL("/");
-  await expect(page.getByRole("status")).toContainText("Account deleted");
+  await expect(
+    page.getByRole("status", { name: "Notifications" }),
+  ).toContainText("Account deleted");
 }
