@@ -64,7 +64,8 @@ export default function Home() {
                     alt=""
                   />
                 </div>
-                <div className="flex items-center justify-between gap-2 p-4">
+                {/* baseline keeps "Shop now" level with the first line when a long name wraps */}
+                <div className="flex items-baseline justify-between gap-2 p-4">
                   <h3 className="font-semibold">{catalog.name}</h3>
                   <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-link">
                     Shop now <BsArrowRight aria-hidden />

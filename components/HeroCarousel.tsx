@@ -60,7 +60,7 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
         ref={trackRef}
         // the scroll position is the source of truth, so swiping moves the dots too
         onScroll={(e) => setCurrent(slideIndex(e.currentTarget))}
-        className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto"
+        className="flex snap-x snap-mandatory scrollbar-none overflow-x-auto"
       >
         {slides.map((slide, index) => (
           <div
@@ -79,7 +79,8 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
               className="object-cover"
               style={{ objectPosition: slide.position }}
               alt=""
-              priority={index === 0}
+              preload={index === 0}
+              fetchPriority={index === 0 ? "high" : "low"}
             />
             <div className="absolute inset-0 flex flex-col items-start justify-end gap-2 bg-linear-to-t from-black/70 via-black/20 to-transparent p-6 pb-12 md:p-12">
               <h2 className="text-3xl font-bold text-white md:text-5xl">
@@ -114,19 +115,24 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
       >
         <IoIosArrowForward />
       </button>
-      <div className="absolute right-6 bottom-5 flex gap-2">
+      <div className="absolute right-4 bottom-3 flex">
         {slides.map((slide, index) => (
+          // the button is a 24px tap target around the small dot
           <button
             key={slide.link}
             type="button"
             aria-label={`Go to slide ${index + 1}`}
             aria-current={index === current}
             onClick={() => goTo(index)}
-            className={cn(
-              "h-2.5 rounded-full transition-all",
-              index === current ? "w-6 bg-white" : "w-2.5 bg-white/50",
-            )}
-          />
+            className="flex h-6 min-w-6 items-center justify-center px-1"
+          >
+            <span
+              className={cn(
+                "h-2.5 rounded-full transition-all",
+                index === current ? "w-6 bg-white" : "w-2.5 bg-white/50",
+              )}
+            />
+          </button>
         ))}
       </div>
     </section>

@@ -5,7 +5,7 @@ import {
   type Page,
 } from "@playwright/test";
 
-export { expect };
+export { expect, type Page };
 
 export const PASSWORD = "Passw0rd!";
 

@@ -16,9 +16,13 @@ export default function ProductGrid({ products, className }: ProductGridProps) {
         className,
       )}
     >
-      {products.map(({ product, reviewAverage }) => (
+      {products.map(({ product, reviewAverage }, index) => (
         <li key={product._id}>
-          <ProductCard product={product} reviewAverage={reviewAverage} />
+          <ProductCard
+            product={product}
+            reviewAverage={reviewAverage}
+            eager={index < 4}
+          />
         </li>
       ))}
     </ul>

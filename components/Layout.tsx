@@ -9,6 +9,11 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <Head>
         <title>Storefront</title>
+        <meta
+          name="description"
+          key="description"
+          content="Storefront is a demo online shop built with Next.js, React and MongoDB. Browse products, read reviews and fill a basket."
+        />
         <link rel="icon" type="image/svg+xml" href="/icon.svg" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>

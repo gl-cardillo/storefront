@@ -10,11 +10,14 @@ import type { Product } from "@/types";
 interface ProductCardProps {
   product: Product;
   reviewAverage?: number;
+  // cards in the first row are on screen at load, so skip lazy loading
+  eager?: boolean;
 }
 
 export default function ProductCard({
   product,
   reviewAverage,
+  eager = false,
 }: ProductCardProps) {
   const cover = isCover(product);
 
@@ -33,13 +36,14 @@ export default function ProductCard({
             alt=""
             fill
             sizes="(min-width: 1280px) 300px, (min-width: 640px) 33vw, 50vw"
+            loading={eager ? "eager" : "lazy"}
             className={cover ? "object-contain p-3" : "object-cover"}
           />
         </div>
         <div className="flex flex-1 flex-col gap-2 p-3">
-          <h3 className="line-clamp-2 text-sm font-medium group-hover:underline md:text-base">
+          <h2 className="line-clamp-2 text-sm font-medium group-hover:underline md:text-base">
             {product.name}
-          </h3>
+          </h2>
           {/* ratings are 1 to 5, so an average of 0 means no reviews yet */}
           <Stars rating={reviewAverage || undefined} size="sm" />
           <Price amount={product.price} className="mt-auto font-bold" />

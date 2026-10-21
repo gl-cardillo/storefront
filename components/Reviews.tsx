@@ -86,7 +86,6 @@ export default function Reviews({
                   <button
                     type="button"
                     aria-pressed={filter === stars}
-                    aria-label={`${stars} star reviews, ${Math.round(share(stars))}%`}
                     disabled={count === 0}
                     onClick={() => setFilter(filter === stars ? 0 : stars)}
                     className={cn(
@@ -94,7 +93,10 @@ export default function Reviews({
                       filter === stars && "bg-muted",
                     )}
                   >
-                    <span className="w-12 text-left">{stars} star</span>
+                    <span className="w-12 text-left">
+                      {stars} star
+                      <span className="sr-only"> reviews,</span>
+                    </span>
                     <span className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                       <span
                         className="block h-full rounded-full bg-star"

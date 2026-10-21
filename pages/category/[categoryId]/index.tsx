@@ -65,7 +65,7 @@ export default function Category({ productsAndAverage }: CategoryProps) {
                           className={cn(
                             "block rounded-md px-3 py-1 text-sm text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
                             subcategory === subcategoryId &&
-                              "bg-primary/10 font-medium text-primary",
+                              "bg-primary/10 font-medium text-foreground",
                           )}
                         >
                           {subcategory}

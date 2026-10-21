@@ -126,7 +126,7 @@ export default function Cart() {
                             <Price amount={product.price} /> each
                           </p>
                         )}
-                        <div className="mt-3 flex items-center gap-4">
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
                           <QuantityStepper
                             value={quantity}
                             onDecrease={() =>
