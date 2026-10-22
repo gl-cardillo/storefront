@@ -1,5 +1,5 @@
 import { BsBoxSeam } from "react-icons/bs";
-import ProductGrid from "../../../components/ProductGrid";
+import ProductListing from "../../../components/ProductListing";
 import EmptyState from "../../../components/ui/EmptyState";
 import { cn } from "../../../utils/cn";
 import Container from "../../../components/ui/Container";
@@ -91,9 +91,6 @@ export default function Category({ productsAndAverage }: CategoryProps) {
         <h1 className="text-2xl font-bold md:text-3xl">
           {subcategoryId ?? currentCategory?.name}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {count} product{count !== 1 && "s"}
-        </p>
         {/* phones get the subcategories as a scrollable row of chips */}
         {currentCategory && (
           <nav
@@ -128,9 +125,9 @@ export default function Category({ productsAndAverage }: CategoryProps) {
           </nav>
         )}
         {count > 0 ? (
-          <ProductGrid
+          <ProductListing
             products={productsAndAverage}
-            className="mt-6 xl:grid-cols-4"
+            gridClassName="xl:grid-cols-4"
           />
         ) : (
           <EmptyState

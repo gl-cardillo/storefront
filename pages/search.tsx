@@ -1,5 +1,5 @@
 import { BsSearch } from "react-icons/bs";
-import ProductGrid from "../components/ProductGrid";
+import ProductListing from "../components/ProductListing";
 import EmptyState from "../components/ui/EmptyState";
 import Container from "../components/ui/Container";
 import { searchProducts } from "../lib/products";
@@ -19,15 +19,10 @@ export default function Search({ query, productsAndAverage }: SearchProps) {
       <h1 className="text-2xl font-bold md:text-3xl">
         {query ? <>Results for &ldquo;{query}&rdquo;</> : "Search"}
       </h1>
-      {query && (
-        <p className="mt-1 text-sm text-muted-foreground">
-          {count} product{count !== 1 && "s"} found
-        </p>
-      )}
       {count > 0 ? (
-        <ProductGrid
+        <ProductListing
           products={productsAndAverage}
-          className="mt-6 lg:grid-cols-4"
+          gridClassName="lg:grid-cols-4"
         />
       ) : (
         <EmptyState

@@ -40,6 +40,43 @@ test("the category menu narrows down to a subcategory", async ({ page }) => {
   await expect(page.getByRole("main").getByRole("listitem")).not.toHaveCount(0);
 });
 
+test("products can be sorted and filtered from the url", async ({ page }) => {
+  await visit(page, "/category/electronics");
+  const prices = async () =>
+    (
+      await page
+        .getByRole("main")
+        .getByRole("listitem")
+        .getByText(/^£[\d.]+$/)
+        .allTextContents()
+    ).map((price) => Number(price.slice(1)));
+
+  await page.getByLabel("Sort by").selectOption("Price: low to high");
+  await expect(page).toHaveURL(/sort=price-asc/);
+  const sorted = await prices();
+  expect(sorted).toEqual([...sorted].sort((a, b) => a - b));
+
+  await page.getByLabel("Price").selectOption("£500 and over");
+  await expect(page).toHaveURL(/price=500-/);
+  await expect(page.getByText(/^\d+ of \d+ products$/)).toBeVisible();
+  expect((await prices()).every((price) => price >= 500)).toBe(true);
+
+  // the choices come back from the url after a reload
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByLabel("Sort by")).toHaveValue("price-asc");
+  await expect(page.getByLabel("Price")).toHaveValue("500-");
+
+  await page.getByLabel("Price").selectOption("Under £25");
+  await expect(
+    page.getByRole("heading", { name: "No products match these filters" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Clear filters" }).click();
+  await expect(page).toHaveURL("/category/electronics?sort=price-asc");
+  await expect(page.getByRole("main").getByText(/^£[\d.]+$/)).not.toHaveCount(
+    0,
+  );
+});
+
 test("a search without results says so", async ({ page }) => {
   await page.goto("/search?q=zzzqqq");
   await expect(
