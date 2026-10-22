@@ -84,6 +84,10 @@ export default function SignIn() {
   return (
     <Container size="sm" className="py-10">
       <h1 className="text-3xl font-bold">{title}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Accounts only exist in this demo store. Use a made-up email and a
+        password you don&apos;t use anywhere else.
+      </p>
       <Card className="mt-6 p-6">
         <div
           role="tablist"

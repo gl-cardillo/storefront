@@ -3,7 +3,7 @@ import Container from "./ui/Container";
 import Logo from "./Logo";
 import { catalogs } from "../utils/catalogs";
 
-const REPO_URL = "https://github.com/gl-cardillo/amazon-clone";
+const REPO_URL = "https://github.com/gl-cardillo/storefront";
 
 export default function Footer() {
   return (
