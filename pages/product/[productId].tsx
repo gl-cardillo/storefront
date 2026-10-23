@@ -2,9 +2,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { getProductById } from "../../lib/products";
+import { getProductById, getRelatedProducts } from "../../lib/products";
 import { getReviewSummary } from "../../lib/reviews";
 import ImageGallery from "../../components/ImageGallery";
+import ProductGrid from "../../components/ProductGrid";
 import Reviews from "../../components/Reviews";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -19,13 +20,19 @@ import { MAX_CART_QUANTITY } from "../../utils/constants";
 import { catalogs } from "../../utils/catalogs";
 import { toast } from "../../utils/toast";
 import type { GetServerSideProps } from "next";
-import type { Product as ProductType, Review, ReviewSummary } from "@/types";
+import type {
+  Product as ProductType,
+  ProductWithRating,
+  Review,
+  ReviewSummary,
+} from "@/types";
 
 interface ProductProps {
   product: ProductType;
   reviews: Review[];
   ratingArray: ReviewSummary["ratingArray"];
   ratingAverage: number;
+  related: ProductWithRating[];
 }
 
 export default function Product({
@@ -33,6 +40,7 @@ export default function Product({
   reviews,
   ratingArray,
   ratingAverage,
+  related,
 }: ProductProps) {
   const [askLogin, setAskLogin] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -153,6 +161,18 @@ export default function Product({
         product={product}
         setAskLogin={setAskLogin}
       />
+      {related.length > 0 && (
+        <section aria-labelledby="related-heading" className="mt-12">
+          <h2 id="related-heading" className="text-2xl font-bold">
+            More like this
+          </h2>
+          <ProductGrid
+            products={related}
+            eagerCount={0}
+            className="mt-6 lg:grid-cols-4"
+          />
+        </section>
+      )}
       <ConfirmDialog
         open={askLogin}
         title="Sign in to continue"
@@ -175,7 +195,10 @@ export const getServerSideProps: GetServerSideProps<ProductProps> = async (
   if (!product) {
     return { notFound: true };
   }
-  const summary = await getReviewSummary(productId);
+  const [summary, related] = await Promise.all([
+    getReviewSummary(productId),
+    getRelatedProducts(product),
+  ]);
 
   // round-trip through json so mongoose documents become plain props
   return {
@@ -185,6 +208,7 @@ export const getServerSideProps: GetServerSideProps<ProductProps> = async (
         reviews: summary.reviews,
         ratingArray: summary.ratingArray,
         ratingAverage: summary.average,
+        related,
       }),
     ),
   };

@@ -5,10 +5,16 @@ import type { ProductWithRating } from "@/types";
 interface ProductGridProps {
   products: ProductWithRating[];
   className?: string;
+  // cards loaded straight away, 0 for grids below the fold
+  eagerCount?: number;
 }
 
 // two columns on phones, more as the screen grows, callers can add columns
-export default function ProductGrid({ products, className }: ProductGridProps) {
+export default function ProductGrid({
+  products,
+  className,
+  eagerCount = 4,
+}: ProductGridProps) {
   return (
     <ul
       className={cn(
@@ -21,7 +27,7 @@ export default function ProductGrid({ products, className }: ProductGridProps) {
           <ProductCard
             product={product}
             reviewAverage={reviewAverage}
-            eager={index < 4}
+            eager={index < eagerCount}
           />
         </li>
       ))}

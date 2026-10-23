@@ -72,3 +72,20 @@ test("the gallery switches images", async ({ page, request }) => {
   await expect(thumbnails.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(thumbnails.nth(0)).toHaveAttribute("aria-pressed", "false");
 });
+
+test("a product suggests others like it", async ({ page, request }) => {
+  const path = await productPath(request);
+  await visit(page, path);
+  const links = page
+    .getByRole("region", { name: "More like this" })
+    .getByRole("link");
+  await expect(links.first()).toBeVisible();
+  expect(await links.count()).toBeLessThanOrEqual(4);
+  const hrefs = await links.evaluateAll((anchors) =>
+    anchors.map((anchor) => anchor.getAttribute("href")),
+  );
+  expect(hrefs).not.toContain(path);
+
+  await links.first().click();
+  await expect(page).toHaveURL(hrefs[0]!);
+});

@@ -35,6 +35,25 @@ export async function getProductsBySubcategory(subcategory: string) {
   return withRatings(await Product.find({ subcategory }));
 }
 
+// same subcategory first, topped up from the category when it has too few
+export async function getRelatedProducts(product: ProductDoc, limit = 4) {
+  await dbConnect();
+  const others = { _id: { $ne: product._id } };
+  const related = await Product.find({
+    ...others,
+    subcategory: product.subcategory,
+  }).limit(limit);
+  if (related.length < limit) {
+    const topUp = await Product.find({
+      ...others,
+      categoryId: product.categoryId,
+      subcategory: { $ne: product.subcategory },
+    }).limit(limit - related.length);
+    related.push(...topUp);
+  }
+  return withRatings(related);
+}
+
 export async function searchProducts(query: string) {
   await dbConnect();
   // escape regex characters so the query is matched literally
