@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import HeroCarousel, { type Slide } from "../components/HeroCarousel";
+import RecentlyViewed from "../components/RecentlyViewed";
 
 const SLIDES: Slide[] = [
   {
@@ -76,6 +77,8 @@ export default function Home() {
           ))}
         </div>
       </Container>
+      {/* below the fold, so appearing after hydration doesn't push the page down */}
+      <RecentlyViewed />
     </>
   );
 }

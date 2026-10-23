@@ -1,4 +1,4 @@
-import { test, expect, visit } from "./fixtures";
+import { test, expect, productPath, visit } from "./fixtures";
 
 test("logged out pages redirect to sign in", async ({ page }) => {
   for (const path of ["/cart", "/profile"]) {
@@ -115,4 +115,31 @@ test("a suggestion can be opened with the keyboard", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: name! }).first(),
   ).toBeVisible();
+});
+
+test("the home page lists recently viewed products", async ({
+  page,
+  request,
+}) => {
+  const names: string[] = [];
+  for (const index of [0, 1]) {
+    await visit(page, await productPath(request, index));
+    names.unshift(
+      (await page.getByRole("heading", { level: 1 }).textContent())!,
+    );
+  }
+
+  await visit(page, "/");
+  const recent = page.getByRole("region", { name: "Recently viewed" });
+  // newest first
+  await expect(recent.getByRole("heading", { level: 2 })).toHaveText([
+    "Recently viewed",
+    ...names,
+  ]);
+
+  await recent.getByRole("button", { name: "Clear recently viewed" }).click();
+  await expect(recent).toBeHidden();
+  // the list renders after hydration, so wait for it before checking it stays gone
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(recent).toBeHidden();
 });

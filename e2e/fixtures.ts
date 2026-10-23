@@ -9,8 +9,16 @@ export { expect, type Page };
 
 export const PASSWORD = "Passw0rd!";
 
-// fails any test that throws an uncaught error in the page
-export const test = base.extend<{ pageErrors: void }>({
+export const test = base.extend<{ pageErrors: void; noDataCache: void }>({
+  // any route turns off chrome's http cache, which otherwise stalls ~30s re-requesting a prefetch the last navigation aborted
+  noDataCache: [
+    async ({ context }, use) => {
+      await context.route("**/_next/data/**", (route) => route.continue());
+      await use();
+    },
+    { auto: true },
+  ],
+  // fails any test that throws an uncaught error in the page
   pageErrors: [
     async ({ page }, use) => {
       const errors: string[] = [];

@@ -18,8 +18,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test.use({ colorScheme });
 
     test("public pages have no accessibility violations", async ({
-      browser,
-      baseURL,
+      page,
       request,
     }) => {
       const paths = [
@@ -34,12 +33,8 @@ for (const colorScheme of ["light", "dark"] as const) {
       ];
       for (const path of paths) {
         await test.step(path, async () => {
-          // a fresh context per page, chrome stalls ~30s re-requesting prefetches the last page aborted
-          const context = await browser.newContext({ baseURL, colorScheme });
-          const page = await context.newPage();
           await visit(page, path);
           await expectNoViolations(page);
-          await context.close();
         });
       }
     });

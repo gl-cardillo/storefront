@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { BsCheckCircleFill } from "react-icons/bs";
@@ -19,6 +19,7 @@ import { useAddToCart } from "../../hooks/useCart";
 import { MAX_CART_QUANTITY } from "../../utils/constants";
 import { catalogs } from "../../utils/catalogs";
 import { toast } from "../../utils/toast";
+import { addRecentlyViewed } from "../../utils/recentlyViewed";
 import type { GetServerSideProps } from "next";
 import type {
   Product as ProductType,
@@ -56,6 +57,10 @@ export default function Product({
     product.description3,
   ].filter(Boolean);
   const reviewCount = reviews.length;
+
+  useEffect(() => {
+    addRecentlyViewed({ product, reviewAverage: ratingAverage });
+  }, [product, ratingAverage]);
 
   const addToCart = () => {
     if (!user) {
