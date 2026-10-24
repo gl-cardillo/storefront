@@ -1,4 +1,5 @@
 import { BsBoxSeam } from "react-icons/bs";
+import PageMeta from "../../../components/PageMeta";
 import ProductListing from "../../../components/ProductListing";
 import EmptyState from "../../../components/ui/EmptyState";
 import { cn } from "../../../utils/cn";
@@ -29,8 +30,22 @@ export default function Category({ productsAndAverage }: CategoryProps) {
   );
   const count = productsAndAverage.length;
 
+  const heading = subcategoryId ?? currentCategory?.name;
+
   return (
     <Container className="flex gap-8 py-6">
+      {currentCategory && (
+        <PageMeta
+          title={heading}
+          description={`Shop ${heading} at Storefront, a demo online shop built with Next.js and MongoDB.`}
+          image={productsAndAverage[0]?.product.picUrl}
+          path={
+            subcategoryId
+              ? `${currentCategory.link}/${subcategoryId}`
+              : currentCategory.link
+          }
+        />
+      )}
       <nav
         aria-label="Categories"
         className="sticky top-22 hidden w-56 shrink-0 self-start md:block"
@@ -88,9 +103,7 @@ export default function Category({ productsAndAverage }: CategoryProps) {
             {currentCategory.name}
           </Link>
         )}
-        <h1 className="text-2xl font-bold md:text-3xl">
-          {subcategoryId ?? currentCategory?.name}
-        </h1>
+        <h1 className="text-2xl font-bold md:text-3xl">{heading}</h1>
         {/* phones get the subcategories as a scrollable row of chips */}
         {currentCategory && (
           <nav

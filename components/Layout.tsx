@@ -1,19 +1,15 @@
 import type { ReactNode } from "react";
 import Head from "next/head";
 import Navbar from "./Navbar";
+import PageMeta from "./PageMeta";
 import Footer from "./Footer";
 import Toaster from "./ui/Toaster";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
+      <PageMeta />
       <Head>
-        <title>Storefront</title>
-        <meta
-          name="description"
-          key="description"
-          content="Storefront is a demo online shop built with Next.js, React and MongoDB. Browse products, read reviews and fill a basket."
-        />
         <link rel="icon" type="image/svg+xml" href="/icon.svg" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>

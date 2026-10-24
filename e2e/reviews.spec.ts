@@ -89,3 +89,35 @@ test("a product suggests others like it", async ({ page, request }) => {
   await links.first().click();
   await expect(page).toHaveURL(hrefs[0]!);
 });
+
+test("a product page has its own link preview", async ({ page, request }) => {
+  const path = await productPath(request);
+  await visit(page, path);
+  const name = await page.getByRole("heading", { level: 1 }).textContent();
+  const meta = (property: string) =>
+    page.locator(`meta[property="${property}"]`);
+
+  await expect(page).toHaveTitle(`${name} | Storefront`);
+  await expect(meta("og:title")).toHaveAttribute("content", name!);
+  await expect(meta("og:url")).toHaveAttribute(
+    "content",
+    new RegExp(`${path}$`),
+  );
+  await expect(meta("og:image")).toHaveAttribute(
+    "content",
+    /^https:\/\/.+\/products\/.+\.(jpg|png)$/,
+  );
+  expect(
+    (await page.locator('meta[name="description"]').getAttribute("content"))!
+      .length,
+  ).toBeLessThanOrEqual(160);
+
+  // client side navigation swaps the tags back to the defaults
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "storefront" })
+    .click();
+  await expect(page).toHaveURL("/");
+  await expect(page).toHaveTitle("Storefront");
+  await expect(meta("og:url")).toHaveCount(0);
+});

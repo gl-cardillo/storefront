@@ -5,6 +5,7 @@ import { BsCheckCircleFill } from "react-icons/bs";
 import { getProductById, getRelatedProducts } from "../../lib/products";
 import { getReviewSummary } from "../../lib/reviews";
 import ImageGallery from "../../components/ImageGallery";
+import PageMeta from "../../components/PageMeta";
 import ProductGrid from "../../components/ProductGrid";
 import Reviews from "../../components/Reviews";
 import Button from "../../components/ui/Button";
@@ -19,6 +20,7 @@ import { useAddToCart } from "../../hooks/useCart";
 import { MAX_CART_QUANTITY } from "../../utils/constants";
 import { catalogs } from "../../utils/catalogs";
 import { toast } from "../../utils/toast";
+import { truncate } from "../../utils/text";
 import { addRecentlyViewed } from "../../utils/recentlyViewed";
 import type { GetServerSideProps } from "next";
 import type {
@@ -80,6 +82,13 @@ export default function Product({
 
   return (
     <Container className="py-6">
+      <PageMeta
+        title={product.name}
+        description={truncate(product.description, 160)}
+        image={product.picUrl}
+        path={`/product/${product._id}`}
+        type="product"
+      />
       {category && (
         // no prefetch, chrome can stall a repeat of a prefetch aborted by navigation
         <nav aria-label="Breadcrumb" className="mb-4 text-sm">
