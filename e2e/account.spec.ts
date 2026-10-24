@@ -203,3 +203,51 @@ test("a basket that fails to load can be retried", async ({ page }) => {
     page.getByRole("heading", { name: "Order summary" }),
   ).toBeVisible();
 });
+
+test("products can be saved to the wishlist", async ({ page }) => {
+  await signUp(page, "Wishlist Tester", uniqueEmail("e2e-wishlist"));
+  await visit(page, "/category/books");
+  // the category menu is a list too, product cards are the items with a heading
+  const card = page
+    .getByRole("main")
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("heading") })
+    .first();
+  const name = (await card.getByRole("heading").textContent())!.trim();
+  const heart = (scope = page.getByRole("main")) =>
+    scope.getByRole("button", { name: `Save ${name}`, exact: true });
+
+  await heart(card).click();
+  await expect(heart(card)).toHaveAttribute("aria-pressed", "true");
+
+  await card.getByRole("link").click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+  await expect(heart()).toHaveAttribute("aria-pressed", "true");
+
+  await visit(page, "/profile");
+  const saved = page.getByRole("region", { name: "Saved items" });
+  await expect(saved.getByRole("heading", { name })).toBeVisible();
+  await heart(saved).click();
+  await expect(saved.getByText("Nothing saved yet")).toBeVisible();
+  // removed on the server too, not just on screen
+  await page.reload();
+  await expect(saved.getByText("Nothing saved yet")).toBeVisible();
+
+  await deleteAccount(page);
+});
+
+test("saving two products at once keeps both", async ({ page }) => {
+  await signUp(page, "Wishlist Racer", uniqueEmail("e2e-wishlist-race"));
+  await visit(page, "/category/electronics");
+  const hearts = page.getByRole("main").getByRole("button", { name: /^Save / });
+  // the second click goes out while the first request is still running
+  await hearts.nth(0).click();
+  await hearts.nth(1).click();
+  await expect(hearts.nth(1)).toHaveAttribute("aria-pressed", "true");
+
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(hearts.nth(0)).toHaveAttribute("aria-pressed", "true");
+  await expect(hearts.nth(1)).toHaveAttribute("aria-pressed", "true");
+
+  await deleteAccount(page);
+});

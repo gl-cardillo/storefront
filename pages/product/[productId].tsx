@@ -8,6 +8,7 @@ import ImageGallery from "../../components/ImageGallery";
 import PageMeta from "../../components/PageMeta";
 import ProductGrid from "../../components/ProductGrid";
 import Reviews from "../../components/Reviews";
+import WishlistButton from "../../components/WishlistButton";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
@@ -133,7 +134,14 @@ export default function Product({
                 : "No reviews yet"}
             </span>
           </a>
-          <Price amount={product.price} className="text-3xl font-bold" />
+          <div className="flex items-center justify-between gap-4">
+            <Price amount={product.price} className="text-3xl font-bold" />
+            <WishlistButton
+              productId={product._id}
+              productName={product.name}
+              className="h-11 w-11 shrink-0"
+            />
+          </div>
           <Card className="flex flex-col gap-4 p-4">
             <p className="flex items-center gap-2 text-sm font-medium text-success">
               <BsCheckCircleFill aria-hidden /> In stock

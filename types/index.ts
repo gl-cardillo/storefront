@@ -56,6 +56,7 @@ export interface User {
   name: string;
   email: string;
   cart: CartItem[];
+  wishlist: string[];
   address?: string;
   city?: string;
   postcode?: string;

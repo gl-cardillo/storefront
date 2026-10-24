@@ -20,6 +20,8 @@ const userSchema = new Schema(
     // only loaded when asked for with select("+password")
     password: { type: String, required: true, select: false },
     cart: { type: [cartItemSchema], default: [] },
+    // product ids, newest first, existing users load it as an empty array
+    wishlist: { type: [String], default: [] },
     city: { type: String },
     dateOfBirth: { type: Date },
     postcode: { type: String },

@@ -96,6 +96,10 @@ export const removeFromCartSchema = z.object({
   productId: productIdField,
 });
 
+export const wishlistSchema = z.object({
+  productId: productIdField,
+});
+
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;

@@ -25,6 +25,13 @@ export async function getProductsById(productIds: string[]) {
   return Product.find({ _id: { $in: productIds.filter(isValidObjectId) } });
 }
 
+// keeps the order of the ids and skips products that no longer exist
+export async function getProductsWithRatings(productIds: string[]) {
+  const products = await getProductsById(productIds);
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return withRatings(productIds.flatMap((id) => byId.get(id) ?? []));
+}
+
 export async function getProductsByCategory(categoryId: string) {
   await dbConnect();
   return withRatings(await Product.find({ categoryId }));

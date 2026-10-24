@@ -13,6 +13,7 @@ import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import { FieldError, Input, Label } from "../components/ui/Field";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
+import SavedItems from "../components/SavedItems";
 import Skeleton from "../components/ui/Skeleton";
 import { useCurrency } from "../hooks/useCurrency";
 import {
@@ -223,6 +224,8 @@ export default function Profile() {
           </dl>
         )}
       </Card>
+
+      <SavedItems />
 
       <Card className="mt-6 p-5 md:p-6">
         <h2 className="text-lg font-semibold">Preferences</h2>

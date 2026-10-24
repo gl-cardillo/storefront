@@ -55,6 +55,15 @@ test("logged out shoppers are asked to sign in", async ({ page, request }) => {
   await dialog.getByRole("button", { name: "Not now" }).click();
   await expect(dialog).toBeHidden();
 
+  await page
+    .getByRole("main")
+    .getByRole("button", { name: /^Save / })
+    .first()
+    .click();
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Not now" }).click();
+  await expect(dialog).toBeHidden();
+
   await page.getByRole("button", { name: "Write a review" }).click();
   await dialog.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/signin");
