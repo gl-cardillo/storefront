@@ -17,6 +17,7 @@ import Container from "../components/ui/Container";
 import Price from "../components/ui/Price";
 import EmptyState from "../components/ui/EmptyState";
 import Skeleton from "../components/ui/Skeleton";
+import OrderTotals from "../components/OrderTotals";
 import QuantityStepper from "../components/ui/QuantityStepper";
 import { cn } from "../utils/cn";
 import { isCover } from "../utils/product";
@@ -180,34 +181,18 @@ export default function Cart() {
             <h2 className="text-lg font-semibold">Order summary</h2>
             {/* no totals until the items are in, 0 items would be misleading */}
             {cart ? (
-              <dl className="flex flex-col gap-2 text-sm">
-                <div className="flex justify-between">
-                  <dt>
-                    Subtotal ({cartQuantity} item{cartQuantity !== 1 && "s"})
-                  </dt>
-                  <dd>
-                    <Price amount={totalPrice} />
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Delivery</dt>
-                  <dd className="text-success">Free</dd>
-                </div>
-                <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
-                  <dt>Total</dt>
-                  <dd>
-                    <Price amount={totalPrice} />
-                  </dd>
-                </div>
-              </dl>
+              <OrderTotals itemCount={cartQuantity} total={totalPrice} />
             ) : (
               <Skeleton className="h-24" />
             )}
-            <Button size="lg" disabled className="mt-2 w-full">
+            <Link
+              href="/checkout"
+              className="mt-2 flex h-12 items-center justify-center rounded-md bg-primary px-6 font-medium text-primary-foreground shadow-sm hover:bg-primary-hover"
+            >
               Checkout
-            </Button>
+            </Link>
             <p className="text-center text-xs text-muted-foreground">
-              Checkout is turned off in this demo.
+              A demo checkout, no payment is taken.
             </p>
           </Card>
         </div>

@@ -43,7 +43,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       await visit(page, "/signin");
       await page.getByRole("button", { name: "Try the demo account" }).click();
       await expect(page).toHaveURL("/");
-      for (const path of ["/cart", "/profile"]) {
+      for (const path of ["/cart", "/checkout", "/profile"]) {
         await test.step(path, async () => {
           await visit(page, path);
           await expectNoViolations(page);

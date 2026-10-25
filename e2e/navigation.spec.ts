@@ -1,7 +1,7 @@
 import { test, expect, productPath, visit } from "./fixtures";
 
 test("logged out pages redirect to sign in", async ({ page }) => {
-  for (const path of ["/cart", "/profile"]) {
+  for (const path of ["/cart", "/profile", "/checkout"]) {
     await page.goto(path);
     await expect(page).toHaveURL("/signin");
   }

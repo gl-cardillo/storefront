@@ -41,7 +41,7 @@ export default async function handler(
       const user = await User.findByIdAndUpdate(
         token.id,
         { $pull: { wishlist: productId } },
-        { new: true },
+        { returnDocument: "after" },
       );
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -60,7 +60,7 @@ export default async function handler(
         [`wishlist.${MAX_WISHLIST - 1}`]: { $exists: false },
       },
       { $push: { wishlist: { $each: [productId], $position: 0 } } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (user) return res.status(200).json(user);
 

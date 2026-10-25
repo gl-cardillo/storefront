@@ -240,14 +240,65 @@ test("saving two products at once keeps both", async ({ page }) => {
   await signUp(page, "Wishlist Racer", uniqueEmail("e2e-wishlist-race"));
   await visit(page, "/category/electronics");
   const hearts = page.getByRole("main").getByRole("button", { name: /^Save / });
+  let saved = 0;
+  page.on("response", (response) => {
+    const { pathname } = new URL(response.url());
+    if (
+      pathname === "/api/wishlist" &&
+      response.request().method() === "POST"
+    ) {
+      saved += 1;
+    }
+  });
   // the second click goes out while the first request is still running
   await hearts.nth(0).click();
   await hearts.nth(1).click();
+  await expect(hearts.nth(0)).toHaveAttribute("aria-pressed", "true");
   await expect(hearts.nth(1)).toHaveAttribute("aria-pressed", "true");
 
+  // the hearts fill straight away, a reload before both replies would cancel a save
+  await expect.poll(() => saved).toBe(2);
   await page.reload({ waitUntil: "networkidle" });
   await expect(hearts.nth(0)).toHaveAttribute("aria-pressed", "true");
   await expect(hearts.nth(1)).toHaveAttribute("aria-pressed", "true");
+
+  await deleteAccount(page);
+});
+
+test("a basket can be checked out", async ({ page, request }) => {
+  const cart = page.getByRole("link", { name: /^Cart/ });
+  await signUp(page, "Checkout Tester", uniqueEmail("e2e-checkout"));
+  await visit(page, await productPath(request));
+  await page.getByRole("button", { name: "Add to Cart" }).click();
+  await expect(cart).toHaveAccessibleName("Cart, 1 items");
+
+  await visit(page, "/cart");
+  await page.getByRole("link", { name: "Checkout" }).click();
+  await expect(page).toHaveURL("/checkout");
+  const form = page.getByRole("form", { name: "Delivery address" });
+  // the name comes from the account, the rest isn't on the profile yet
+  await expect(form.getByLabel("Full name")).toHaveValue("Checkout Tester");
+  await expect(page.getByText("Subtotal (1 item)")).toBeVisible();
+
+  await page.getByRole("button", { name: "Place order" }).click();
+  await expect(form.getByText("Address is required")).toBeVisible();
+  await expect(form.getByText("City is required")).toBeVisible();
+  await expect(form.getByText("Postcode is required")).toBeVisible();
+
+  await form.getByLabel("Address").fill("1 Test Street");
+  await form.getByLabel("City").fill("London");
+  await form.getByLabel("Postcode").fill("E1 6AN");
+  await page.getByRole("button", { name: "Place order" }).click();
+  await expect(page).toHaveURL("/");
+  await expect(
+    page.getByRole("status", { name: "Notifications" }),
+  ).toContainText("Order placed");
+  await expect(cart).toHaveAccessibleName("Cart");
+
+  await visit(page, "/checkout");
+  await expect(
+    page.getByRole("heading", { name: "Your basket is empty" }),
+  ).toBeVisible();
 
   await deleteAccount(page);
 });

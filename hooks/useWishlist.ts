@@ -18,10 +18,13 @@ export function useWishlist() {
   });
 }
 
-// the heart reads user.wishlist, so that is updated first and restored on failure
+const TOGGLE_KEY = ["wishlist", "toggle"];
+
+// the heart reads user.wishlist, so that is updated first and refetched once saves finish
 export function useToggleWishlist() {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: TOGGLE_KEY,
     mutationFn: async ({ productId, saved }: Toggle) =>
       (saved
         ? await axios.delete<User>(WISHLIST_URL, { data: { productId } })
@@ -35,25 +38,26 @@ export function useToggleWishlist() {
           list?.filter(({ product }) => product._id !== productId),
         );
       }
-      const previous = queryClient.getQueryData<User>(ME_KEY);
-      if (previous) {
-        queryClient.setQueryData<User>(ME_KEY, {
-          ...previous,
-          wishlist: saved
-            ? previous.wishlist.filter((id) => id !== productId)
-            : [productId, ...previous.wishlist],
-        });
-      }
-      return { previous };
+      queryClient.setQueryData<User>(
+        ME_KEY,
+        (user) =>
+          user && {
+            ...user,
+            wishlist: saved
+              ? user.wishlist.filter((id) => id !== productId)
+              : [productId, ...user.wishlist],
+          },
+      );
     },
-    onError: (error, _variables, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(ME_KEY, context.previous);
+    onError: (error) => toast(errorMessage(error), "error"),
+    // replies can arrive out of order, so only the last save to finish refetches the truth
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: WISHLIST_KEY });
+      // this mutation may still count as running here
+      if (queryClient.isMutating({ mutationKey: TOGGLE_KEY }) <= 1) {
+        queryClient.invalidateQueries({ queryKey: ME_KEY });
       }
-      toast(errorMessage(error), "error");
     },
-    onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: WISHLIST_KEY }),
   });
 }
 

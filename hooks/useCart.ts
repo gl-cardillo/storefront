@@ -4,7 +4,7 @@ import { ME_KEY, errorMessage, useMe } from "./useAuth";
 import { toast } from "../utils/toast";
 import type { CartProduct, User } from "@/types";
 
-const CART_KEY = ["cart"];
+export const CART_KEY = ["cart"];
 const CART_URL = "/api/cart/addToCart";
 
 export type CartStep = "+1" | "-1";
