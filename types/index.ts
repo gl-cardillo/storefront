@@ -50,6 +50,25 @@ export interface CartProduct {
   quantity: number;
 }
 
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  picUrl: string;
+  quantity: number;
+}
+
+export interface Order {
+  _id: string;
+  id: string;
+  userId: string;
+  items: OrderItem[];
+  address: { name: string; address: string; city: string; postcode: string };
+  total: number;
+  createdAt: string;
+  createdAt_formatted: string;
+}
+
 export interface User {
   _id: string;
   id: string;

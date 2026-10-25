@@ -56,6 +56,26 @@ export const reviewSchema = z.object({
   review: z.string().min(2, "Review must be at least 2 characters"),
 });
 
+// the delivery address, every field is needed to ship
+export const checkoutSchema = z.object({
+  name: nameField,
+  address: z
+    .string()
+    .trim()
+    .min(1, "Address is required")
+    .max(50, "Address must be at most 50 characters"),
+  city: z
+    .string()
+    .trim()
+    .min(1, "City is required")
+    .max(30, "City must be at most 30 characters"),
+  postcode: z
+    .string()
+    .trim()
+    .min(1, "Postcode is required")
+    .max(10, "Postcode must be at most 10 characters"),
+});
+
 // api request bodies
 
 // the test account logs in without a password
@@ -103,4 +123,5 @@ export const wishlistSchema = z.object({
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
+export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export type ReviewRequest = z.infer<typeof reviewRequestSchema>;

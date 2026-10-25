@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/User.ts";
 import Product from "../models/Product.ts";
 import Review from "../models/Review.ts";
+import Order from "../models/Order.ts";
 import { TEST_ACCOUNT_EMAIL } from "../utils/constants.ts";
 
 // copies the catalogue and the test account into a dev or test database
@@ -79,7 +80,8 @@ try {
   await copy("users", { email: TEST_ACCOUNT_EMAIL });
   await addReviewAuthors();
   // the app connects with autoIndex off, so indexes are built here
-  for (const { modelName, schema } of [User, Product, Review]) {
+  // orders are never copied, they belong to real users
+  for (const { modelName, schema } of [User, Product, Review, Order]) {
     const model = to.model(modelName, schema);
     await model.syncIndexes();
     const names = (await model.listIndexes()).map((i) => i.name).join(", ");

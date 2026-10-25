@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import dbConnect from "@/utils/dbConnect";
 import User from "@/models/User";
 import Review from "@/models/Review";
+import Order from "@/models/Order";
 import { verifyToken } from "@/utils/auth";
 import { methodNotAllowed } from "@/lib/api";
 
@@ -17,11 +18,12 @@ export default async function handler(
 
   try {
     const { connection } = await dbConnect();
-    // the account and its reviews go together or not at all
+    // the account, its reviews and its orders go together or not at all
     const deleted = await connection.transaction(async (session) => {
       const user = await User.findByIdAndDelete(token.id, { session });
       if (user) {
         await Review.deleteMany({ userId: user.id }, { session });
+        await Order.deleteMany({ userId: user.id }, { session });
       }
       return user;
     });
