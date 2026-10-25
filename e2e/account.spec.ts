@@ -269,6 +269,10 @@ test("saving two products at once keeps both", async ({ page }) => {
 test("a basket can be checked out", async ({ page, request }) => {
   const cart = page.getByRole("link", { name: /^Cart/ });
   await signUp(page, "Checkout Tester", uniqueEmail("e2e-checkout"));
+  const orders = page.getByRole("region", { name: "Orders" });
+  await visit(page, "/profile");
+  await expect(orders.getByText("No orders yet")).toBeVisible();
+
   await visit(page, await productPath(request));
   const name = await page.getByRole("heading", { level: 1 }).textContent();
   await page.getByRole("button", { name: "Add to Cart" }).click();
@@ -292,6 +296,7 @@ test("a basket can be checked out", async ({ page, request }) => {
   await form.getByLabel("Postcode").fill("E1 6AN");
   await page.getByRole("button", { name: "Place order" }).click();
   await expect(page).toHaveURL(/\/orders\/[0-9a-f]{24}$/);
+  const orderUrl = page.url();
   const confirmation = async () => {
     await expect(
       page.getByRole("heading", { name: "Thanks for your order" }),
@@ -315,6 +320,15 @@ test("a basket can be checked out", async ({ page, request }) => {
   await expect(
     page.getByRole("heading", { name: "Your basket is empty" }),
   ).toBeVisible();
+
+  // the profile lists it and links back to the confirmation
+  await visit(page, "/profile");
+  const number = orderUrl.slice(-8).toUpperCase();
+  await orders
+    .getByRole("link", { name: new RegExp(`^Order ${number}`) })
+    .click();
+  await expect(page).toHaveURL(orderUrl);
+  await confirmation();
 
   await deleteAccount(page);
 });

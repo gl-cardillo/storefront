@@ -5,7 +5,19 @@ import { CART_KEY } from "./useCart";
 import type { CheckoutInput } from "../utils/schemas";
 import type { Order } from "@/types";
 
-const orderKey = (orderId: string) => ["orders", orderId];
+const ORDERS_KEY = ["orders"];
+const orderKey = (orderId: string) => [...ORDERS_KEY, orderId];
+
+// newest first
+export function useOrders() {
+  const { user } = useMe();
+  return useQuery({
+    queryKey: ORDERS_KEY,
+    queryFn: async () =>
+      (await axios.get<{ orders: Order[] }>("/api/orders")).data.orders,
+    enabled: Boolean(user),
+  });
+}
 
 export function useOrder(orderId: string | undefined) {
   const { user } = useMe();
@@ -26,6 +38,8 @@ export function usePlaceOrder() {
     onSuccess: (order) => {
       // the confirmation page shows it straight away, without a second request
       queryClient.setQueryData(orderKey(order.id), order);
+      // exact, so the order just cached above isn't refetched
+      queryClient.invalidateQueries({ queryKey: ORDERS_KEY, exact: true });
       queryClient.setQueryData(CART_KEY, []);
       queryClient.invalidateQueries({ queryKey: ME_KEY });
     },

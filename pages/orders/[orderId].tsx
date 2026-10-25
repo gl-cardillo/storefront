@@ -18,9 +18,7 @@ import Price from "../../components/ui/Price";
 import Skeleton from "../../components/ui/Skeleton";
 import OrderTotals from "../../components/OrderTotals";
 import PageMeta from "../../components/PageMeta";
-
-// short enough to read out, still unique in practice
-const orderNumber = (id: string) => id.slice(-8).toUpperCase();
+import { orderNumber } from "../../utils/orders";
 
 export default function OrderConfirmation() {
   const router = useRouter();

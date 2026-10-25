@@ -13,6 +13,7 @@ import Card from "../components/ui/Card";
 import Container from "../components/ui/Container";
 import { FieldError, Input, Label } from "../components/ui/Field";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
+import OrderHistory from "../components/OrderHistory";
 import SavedItems from "../components/SavedItems";
 import Skeleton from "../components/ui/Skeleton";
 import { useCurrency } from "../hooks/useCurrency";
@@ -224,6 +225,8 @@ export default function Profile() {
           </dl>
         )}
       </Card>
+
+      <OrderHistory />
 
       <SavedItems />
 
