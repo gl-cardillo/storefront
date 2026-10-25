@@ -67,10 +67,8 @@ export default function Checkout() {
 
   const submit = (address: CheckoutInput) => {
     placeOrder.mutate(address, {
-      onSuccess: async () => {
-        await router.replace("/");
-        toast("Order placed");
-      },
+      // replace, so going back doesn't return to a checkout that is already done
+      onSuccess: (order) => router.replace(`/orders/${order.id}`),
       onError: (error) => toast(errorMessage(error), "error"),
     });
   };

@@ -1,17 +1,10 @@
-import AxeBuilder from "@axe-core/playwright";
-import { test, expect, visit, productPath, type Page } from "./fixtures";
-
-async function expectNoViolations(page: Page) {
-  const { violations } = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
-  // node targets make a failure easy to find
-  const summary = violations.map(({ id, nodes }) => ({
-    id,
-    targets: nodes.map((node) => node.target.join(" ")),
-  }));
-  expect.soft(summary).toEqual([]);
-}
+import {
+  test,
+  expect,
+  expectNoViolations,
+  visit,
+  productPath,
+} from "./fixtures";
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} theme`, () => {

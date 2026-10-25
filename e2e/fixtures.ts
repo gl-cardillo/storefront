@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import {
   test as base,
   expect,
@@ -8,6 +9,19 @@ import {
 export { expect, type Page };
 
 export const PASSWORD = "Passw0rd!";
+
+// soft, so one run lists the violations of every page it checks
+export async function expectNoViolations(page: Page) {
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  // node targets make a failure easy to find
+  const summary = violations.map(({ id, nodes }) => ({
+    id,
+    targets: nodes.map((node) => node.target.join(" ")),
+  }));
+  expect.soft(summary).toEqual([]);
+}
 
 export const test = base.extend<{ pageErrors: void; noDataCache: void }>({
   // any route turns off chrome's http cache, which otherwise stalls ~30s re-requesting a prefetch the last navigation aborted

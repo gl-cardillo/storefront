@@ -3,6 +3,7 @@ import {
   expect,
   PASSWORD,
   deleteAccount,
+  expectNoViolations,
   productPath,
   signUp,
   uniqueEmail,
@@ -269,6 +270,7 @@ test("a basket can be checked out", async ({ page, request }) => {
   const cart = page.getByRole("link", { name: /^Cart/ });
   await signUp(page, "Checkout Tester", uniqueEmail("e2e-checkout"));
   await visit(page, await productPath(request));
+  const name = await page.getByRole("heading", { level: 1 }).textContent();
   await page.getByRole("button", { name: "Add to Cart" }).click();
   await expect(cart).toHaveAccessibleName("Cart, 1 items");
 
@@ -289,11 +291,25 @@ test("a basket can be checked out", async ({ page, request }) => {
   await form.getByLabel("City").fill("London");
   await form.getByLabel("Postcode").fill("E1 6AN");
   await page.getByRole("button", { name: "Place order" }).click();
-  await expect(page).toHaveURL("/");
-  await expect(
-    page.getByRole("status", { name: "Notifications" }),
-  ).toContainText("Order placed");
+  await expect(page).toHaveURL(/\/orders\/[0-9a-f]{24}$/);
+  const confirmation = async () => {
+    await expect(
+      page.getByRole("heading", { name: "Thanks for your order" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: name! })).toBeVisible();
+    await expect(page.getByText("1 Test Street")).toBeVisible();
+    await expect(page.getByText("Subtotal (1 item)")).toBeVisible();
+  };
+  await confirmation();
   await expect(cart).toHaveAccessibleName("Cart");
+  // the order comes from the server, not just the checkout's cache
+  await page.reload({ waitUntil: "networkidle" });
+  await confirmation();
+  await expectNoViolations(page);
+
+  // going back skips the finished checkout
+  await page.goBack();
+  await expect(page).toHaveURL("/cart");
 
   await visit(page, "/checkout");
   await expect(
@@ -301,4 +317,16 @@ test("a basket can be checked out", async ({ page, request }) => {
   ).toBeVisible();
 
   await deleteAccount(page);
+});
+
+test("an unknown order says so", async ({ page }) => {
+  await visit(page, "/signin");
+  await page.getByRole("button", { name: "Try the demo account" }).click();
+  await expect(page).toHaveURL("/");
+  for (const id of ["000000000000000000000000", "not-an-id"]) {
+    await visit(page, `/orders/${id}`);
+    await expect(
+      page.getByRole("heading", { name: "Order not found" }),
+    ).toBeVisible();
+  }
 });
