@@ -1,61 +1,40 @@
 # Storefront
 
-<br/>
+A demo online shop built with Next.js, TypeScript, Tailwind and MongoDB.
 
-## Description:
+**[Live demo](https://glc-storefront.vercel.app/)**: use **Try the demo account** on the sign-in page. Nothing is charged or shipped.
 
----
+![Home page](docs/screenshots/home.jpg)
 
-An e-commerce store made with Next.js, TypeScript, Tailwind and MongoDB.
+## Features
 
-<br/>
+- Search with suggestions, category pages with sort and filters
+- Product pages with gallery, reviews, and "More like this"
+- Basket, demo checkout and order history
+- Wishlist and recently viewed products
+- Light and dark themes, responsive down to 320px
+- £, $ or € prices
+- Accessible: WCAG 2.1 AA checked with axe
 
-## Functionalities:
+| Category (dark)                                 | Product                                       |
+| ----------------------------------------------- | --------------------------------------------- |
+| ![Category page](docs/screenshots/category.jpg) | ![Product page](docs/screenshots/product.jpg) |
+| **Checkout (dark)**                             | **Profile (dark)**                            |
+| ![Checkout page](docs/screenshots/checkout.jpg) | ![Profile page](docs/screenshots/profile.jpg) |
 
----
+## Stack
 
-- Create a profile and delete profile.
-- Sign in and log out.
-- Search and browse products.
-- Add and remove product from cart.
-- Review product with star rating.
-- Sort review by most recent or highest rating.
-- Filter review by rating.
-- Change details like address, city etc.
-- change currency ($, €, £).
+Next.js 16, React 19, TypeScript, Tailwind CSS 4, MongoDB with Mongoose, TanStack Query, React Hook Form with Zod, JWT auth, Playwright and axe tests, GitHub Actions and Vercel.
 
-## Link
-
----
-
-Check the [demo](https://glc-storefront.vercel.app/)
-
-<br/>
-
-## Local setup:
-
----
+## Local setup
 
 Requires Node 22 and access to the MongoDB cluster.
 
 1. `npm install`
-2. Create `.env.local` with `MONGO_URI` (a database whose name ends in `-dev`), `PROD_MONGO_URI`, `ACCESS_TOKEN_SECRET` and `TEST_PASSWORD`.
-3. `npm run db:reset` copies the products and reviews from production into the dev database and builds the indexes. It refuses any database whose name doesn't end in `-dev` or `-test`.
+2. Create `.env.local` with `MONGO_URI` (a database ending in `-dev`), `PROD_MONGO_URI`, `ACCESS_TOKEN_SECRET` and `TEST_PASSWORD`.
+3. `npm run db:reset` to seed the dev database from production.
 4. `npm run dev` and open http://localhost:3000
 
-<br/>
+Run the tests with `npm run test:e2e` (first time: `npx playwright install chromium`).
 
-## Scripts:
-
----
-
-| Command                                   | What it does                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------- |
-| `npm run dev`                             | start the dev server                                                            |
-| `npm run build` / `npm start`             | production build and server                                                     |
-| `npm run lint` / `npm run typecheck`      | eslint and tsc                                                                  |
-| `npm run format` / `npm run format:check` | format with prettier, or only check                                             |
-| `npm run test:e2e`                        | build, start on port 3100 and run the Playwright tests against the dev database |
-| `npm run db:reset`                        | reseed the dev database from production and build the indexes                   |
-
-Before the first `npm run test:e2e`, download the browser with `npx playwright install chromium`. CI runs lint, typecheck and format check on every push and pull request; the build is checked by Vercel.
+Photo credits are in [IMAGE_CREDITS.md](IMAGE_CREDITS.md).

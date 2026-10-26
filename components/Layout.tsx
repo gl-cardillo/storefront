@@ -15,10 +15,6 @@ export default function Layout({ children }: { children: ReactNode }) {
       </Head>
       {/* the footer stays at the bottom on short pages */}
       <div className="flex min-h-screen flex-col">
-        <p className="bg-foreground px-4 py-2 text-center text-xs text-surface">
-          Demo portfolio project, not a real store. Don&apos;t enter real
-          passwords or payment details.
-        </p>
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
